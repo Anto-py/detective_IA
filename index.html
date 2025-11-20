@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA ou Pas IA ? - Le Détective des Algorithmes</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // Icons as SVG components
+        const CheckCircle = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        );
+
+        const XCircle = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        );
+
+        const AlertCircle = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        );
+
+        const Trophy = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+            </svg>
+        );
+
+        const Search = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        );
+
+        const Zap = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+        );
+
+        const IADetectiveGame = () => {
+            const questions = [
+                {
+                    id: 1,
+                    title: "Suggestions d'amis sur Facebook",
+                    description: "Facebook te propose des personnes à ajouter en ami",
+                    isIA: true,
+                    explanation: "Facebook analyse tes amis, tes likes, tes groupes pour PRÉDIRE qui tu pourrais connaître. C'est un système d'apprentissage machine.",
+                    isLimit: false
+                },
+                {
+                    id: 2,
+                    title: "Calculatrice",
+                    description: "Tu l'utilises pour faire 125 × 8",
+                    isIA: false,
+                    explanation: "Une calculatrice applique des formules mathématiques FIXES. Elle ne s'améliore pas, n'apprend rien de tes calculs précédents.",
+                    isLimit: false
+                },
+                {
+                    id: 3,
+                    title: "Recommandations Netflix",
+                    description: "Netflix te suggère des séries basées sur ton historique",
+                    isIA: true,
+                    explanation: "Netflix analyse ce que tu regardes, tes notes, les pauses, pour APPRENDRE tes goûts et prédire ce que tu aimeras.",
+                    isLimit: false
+                },
+                {
+                    id: 4,
+                    title: "GPS classique (calcul d'itinéraire)",
+                    description: "Ton GPS calcule le chemin le plus court entre deux points",
+                    isIA: false,
+                    explanation: "Un GPS classique utilise des algorithmes de calcul de chemin (plus court, plus rapide). Aucun apprentissage, juste des règles mathématiques fixes sur une carte.",
+                    note: "Attention : Waze avec prédiction de trafic, c'est différent ! On y reviendra...",
+                    isLimit: false
+                },
+                {
+                    id: 5,
+                    title: "Waze (prédiction de trafic)",
+                    description: "Waze prédit les embouteillages et ajuste ton trajet en direct",
+                    isIA: true,
+                    explanation: "Waze collecte les données de millions d'utilisateurs pour APPRENDRE les patterns de trafic et PRÉDIRE les conditions futures. Ça s'améliore avec le temps.",
+                    note: "GPS classique = calcul fixe | Waze = apprentissage continu",
+                    isLimit: false
+                },
+                {
+                    id: 6,
+                    title: "Filtre anti-spam Gmail",
+                    description: "Gmail détecte les emails indésirables et les met dans le dossier spam",
+                    isIA: true,
+                    explanation: "Quand tu signales un spam, Gmail APPREND. Il analyse des millions de messages pour reconnaître les patterns de spam et s'améliore constamment.",
+                    isLimit: false
+                },
+                {
+                    id: 7,
+                    title: "Reconnaissance faciale smartphone",
+                    description: "Ton téléphone te reconnaît même avec des lunettes ou une barbe",
+                    isIA: true,
+                    explanation: "La reconnaissance faciale utilise des réseaux neuronaux (deep learning). Le système APPREND ton visage et s'ADAPTE quand tu changes (lunettes, barbe, coiffure).",
+                    note: "C'est aussi pour ça qu'elle peut avoir des biais...",
+                    isLimit: false
+                },
+                {
+                    id: 8,
+                    title: "Chronomètre/minuteur",
+                    description: "Tu lances un chrono pour mesurer le temps",
+                    isIA: false,
+                    explanation: "Un chronomètre compte les secondes. Point. Aucun apprentissage, aucune prédiction.",
+                    isLimit: false
+                },
+                {
+                    id: 9,
+                    title: "Google Translate / DeepL",
+                    description: "Tu traduis un texte d'anglais vers français",
+                    isIA: true,
+                    explanation: "Google Translate moderne utilise des réseaux neuronaux entraînés sur des MILLIONS de textes traduits pour comprendre le sens, pas juste remplacer mot à mot.",
+                    note: "Fun fact : Avant 2016, c'était des règles. Maintenant, c'est 100% IA !",
+                    isLimit: false
+                },
+                {
+                    id: 10,
+                    title: "Correcteur orthographique",
+                    description: "Ton traitement de texte souligne les fautes d'orthographe",
+                    isIA: null,
+                    explanation: "ANCIEN correcteur (Word 2003) = dictionnaire + règles fixes = Pas IA. NOUVEAU (Grammarly, Word moderne) = apprend ton style, prédit tes erreurs = IA !",
+                    note: "Une même technologie peut évoluer d'algo classique vers IA",
+                    isLimit: true
+                },
+                {
+                    id: 11,
+                    title: "Assistant vocal (Siri/Alexa)",
+                    description: "Tu demandes à ton assistant : 'Quel temps fait-il demain ?'",
+                    isIA: true,
+                    explanation: "Assistants vocaux = DOUBLE IA : 1) Reconnaissance vocale (transformer ta voix en texte), 2) Compréhension langage naturel (comprendre ce que tu veux).",
+                    isLimit: false
+                },
+                {
+                    id: 12,
+                    title: "Publicités ciblées Instagram",
+                    description: "Instagram te montre des pubs en fonction de ton comportement",
+                    isIA: true,
+                    explanation: "Instagram analyse tout : tes likes, tes pauses, tes recherches, pour PRÉDIRE ce qui va t'intéresser et te vendre des trucs. C'est du profilage comportemental par IA.",
+                    note: "C'est aussi pour ça qu'on parle de 'bulle de filtre' et de manipulation...",
+                    isLimit: false
+                },
+                {
+                    id: 13,
+                    title: "Lecteur de code QR",
+                    description: "Tu scannes un QR code pour accéder à un site web",
+                    isIA: false,
+                    explanation: "Un QR code est juste un pattern à décoder selon un standard fixe. L'appareil lit les carrés noirs et blancs = 0 et 1. Aucune intelligence, juste de la lecture.",
+                    isLimit: false
+                },
+                {
+                    id: 14,
+                    title: "Appareil photo smartphone",
+                    description: "Tu prends une photo avec ton téléphone",
+                    isIA: null,
+                    explanation: "CAPTURE BASIQUE = juste enregistrer la lumière = Pas IA. MAIS mode portrait (flou arrière-plan), mode nuit, détection scène automatique = IA qui analyse l'image !",
+                    note: "Une fonction peut avoir plusieurs usages, certains avec IA, d'autres sans",
+                    isLimit: true
+                },
+                {
+                    id: 15,
+                    title: "Lampe torche smartphone",
+                    description: "Tu allumes la LED pour éclairer",
+                    isIA: false,
+                    explanation: "Une lampe torche allume juste une LED. On/Off. Pas d'algorithme, pas de décision, encore moins d'apprentissage !",
+                    isLimit: false
+                }
+            ];
+
+            const [currentQuestion, setCurrentQuestion] = useState(0);
+            const [showFeedback, setShowFeedback] = useState(false);
+            const [userAnswer, setUserAnswer] = useState(null);
+            const [score, setScore] = useState(0);
+            const [bonusPoints, setBonusPoints] = useState(0);
+            const [gameStarted, setGameStarted] = useState(false);
+            const [gameFinished, setGameFinished] = useState(false);
+
+            const handleAnswer = (answer) => {
+                const question = questions[currentQuestion];
+                setUserAnswer(answer);
+                setShowFeedback(true);
+
+                if (question.isLimit) {
+                    setBonusPoints(bonusPoints + 1);
+                } else if (
+                    (answer === true && question.isIA === true) ||
+                    (answer === false && question.isIA === false)
+                ) {
+                    setScore(score + 1);
+                }
+            };
+
+            const nextQuestion = () => {
+                if (currentQuestion < questions.length - 1) {
+                    setCurrentQuestion(currentQuestion + 1);
+                    setShowFeedback(false);
+                    setUserAnswer(null);
+                } else {
+                    setGameFinished(true);
+                }
+            };
+
+            const getProfile = () => {
+                const totalScore = score + bonusPoints;
+                if (totalScore >= 13) {
+                    return {
+                        title: "Expert·e ML",
+                        emoji: "🏆",
+                        description: "Tu maîtrises ! Tu distingues clairement apprentissage machine et algorithmes classiques. Tu as saisi les nuances importantes."
+                    };
+                } else if (totalScore >= 9) {
+                    return {
+                        title: "Détective Algo",
+                        emoji: "🔍",
+                        description: "Bon travail ! Tu as les bases et tu comprends les principes. Quelques subtilités t'ont échappé mais tu es sur la bonne voie."
+                    };
+                } else if (totalScore >= 5) {
+                    return {
+                        title: "Novice IA",
+                        emoji: "🌱",
+                        description: "C'est un début ! Tu découvres la différence entre IA et algorithmes. Continue à observer les technos autour de toi."
+                    };
+                } else {
+                    return {
+                        title: "Explorateur·ice",
+                        emoji: "🤔",
+                        description: "Tu débutes ! Retiens : l'IA APPREND des données et s'améliore. Un algorithme classique suit des règles fixes."
+                    };
+                }
+            };
+
+            const resetGame = () => {
+                setCurrentQuestion(0);
+                setShowFeedback(false);
+                setUserAnswer(null);
+                setScore(0);
+                setBonusPoints(0);
+                setGameStarted(false);
+                setGameFinished(false);
+            };
+
+            if (!gameStarted) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-cover bg-center" style={{backgroundImage: 'url(IA_detective.jpg)', filter: 'brightness(0.4)'}}></div>
+                        <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 max-w-2xl w-full text-center relative z-10">
+                            <Search className="w-20 h-20 mx-auto mb-4 text-purple-600" />
+                            <h1 className="text-4xl font-bold text-gray-800 mb-4">
+                                IA ou Pas IA ?
+                            </h1>
+                            <h2 className="text-2xl text-purple-600 mb-6">
+                                Le Détective des Algorithmes 🔍
+                            </h2>
+                            <div className="bg-purple-50 rounded-xl p-6 mb-6">
+                                <p className="text-lg text-gray-700 mb-4">
+                                    <strong>15 technologies du quotidien à décoder</strong>
+                                </p>
+                                <p className="text-gray-600 mb-2">
+                                    Pour chaque exemple, décide :
+                                </p>
+                                <div className="flex gap-4 justify-center mb-4 flex-wrap">
+                                    <div className="bg-green-100 px-4 py-2 rounded-lg">
+                                        <strong className="text-green-700">IA</strong> = système qui apprend
+                                    </div>
+                                    <div className="bg-orange-100 px-4 py-2 rounded-lg">
+                                        <strong className="text-orange-700">Pas IA</strong> = algorithme classique
+                                    </div>
+                                </div>
+                                <p className="text-sm text-gray-500 italic">
+                                    ⚠️ Attention aux pièges... Certains cas sont plus subtils qu'ils n'y paraissent !
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setGameStarted(true)}
+                                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-transform shadow-lg"
+                            >
+                                Prêt·e ? C'est parti ! 🚀
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (gameFinished) {
+                const profile = getProfile();
+                const totalScore = score + bonusPoints;
+
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-2xl w-full">
+                            <div className="text-center mb-8">
+                                <Trophy className="w-20 h-20 mx-auto mb-4 text-yellow-500" />
+                                <h1 className="text-4xl font-bold text-gray-800 mb-2">
+                                    Bravo, parcours terminé ! 🎉
+                                </h1>
+                                <div className="text-6xl my-6">{profile.emoji}</div>
+                                <h2 className="text-3xl font-bold text-purple-600 mb-4">
+                                    {profile.title}
+                                </h2>
+                                <p className="text-lg text-gray-700 mb-6">
+                                    {profile.description}
+                                </p>
+                            </div>
+
+                            <div className="bg-purple-50 rounded-xl p-6 mb-6">
+                                <div className="grid grid-cols-3 gap-4 text-center mb-4">
+                                    <div>
+                                        <div className="text-3xl font-bold text-green-600">{score}</div>
+                                        <div className="text-sm text-gray-600">Réponses correctes</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-3xl font-bold text-blue-600">{bonusPoints}</div>
+                                        <div className="text-sm text-gray-600">Points bonus (nuances)</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-3xl font-bold text-purple-600">{totalScore}/17</div>
+                                        <div className="text-sm text-gray-600">Score total</div>
+                                    </div>
+                                </div>
+                                <p className="text-center text-gray-600 italic text-sm">
+                                    L'important, c'est d'avoir développé ton esprit critique face aux technos !
+                                </p>
+                            </div>
+
+                            <div className="bg-blue-50 rounded-xl p-6 mb-6">
+                                <h3 className="text-xl font-bold text-gray-800 mb-4">
+                                    Et maintenant ? 🤔
+                                </h3>
+                                <p className="text-gray-700 mb-3">
+                                    Maintenant que tu sais reconnaître l'IA, on va explorer :
+                                </p>
+                                <ul className="space-y-2 text-gray-700">
+                                    <li>💾 Comment l'IA apprend-elle ? (Spoiler : avec TES données)</li>
+                                    <li>⚖️ Quels sont les biais cachés ?</li>
+                                    <li>🌍 Quel impact écologique ?</li>
+                                    <li>🧠 Comment l'utiliser de façon critique ?</li>
+                                </ul>
+                                <p className="text-purple-600 font-semibold mt-4">
+                                    Ces questions, on va les explorer ensemble dans la suite de la formation !
+                                </p>
+                            </div>
+
+                            <button
+                                onClick={resetGame}
+                                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform shadow-lg"
+                            >
+                                Rejouer 🔄
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            const question = questions[currentQuestion];
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-2xl w-full">
+                        <div className="mb-6">
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="text-sm font-semibold text-gray-600">
+                                    Question {currentQuestion + 1}/15
+                                </span>
+                                <span className="text-sm font-semibold text-purple-600">
+                                    Score : {score + bonusPoints}/{currentQuestion + bonusPoints}
+                                </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-3">
+                                <div
+                                    className="bg-gradient-to-r from-purple-600 to-pink-600 h-3 rounded-full transition-all duration-300"
+                                    style={{ width: `${progress}%` }}
+                                />
+                            </div>
+                        </div>
+
+                        {!showFeedback ? (
+                            <div>
+                                <div className="mb-6">
+                                    {question.isLimit && (
+                                        <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-3 mb-4 flex items-center gap-2">
+                                            <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0" />
+                                            <span className="text-sm text-yellow-700 font-semibold">
+                                                Attention, piège possible...
+                                            </span>
+                                        </div>
+                                    )}
+                                    <h2 className="text-3xl font-bold text-gray-800 mb-4">
+                                        {question.title}
+                                    </h2>
+                                    <p className="text-lg text-gray-600 mb-6">
+                                        {question.description}
+                                    </p>
+                                </div>
+
+                                <div className="mb-6">
+                                    <p className="text-xl font-semibold text-center text-gray-700 mb-4">
+                                        C'est de l'IA ?
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <button
+                                        onClick={() => handleAnswer(true)}
+                                        className="bg-gradient-to-br from-green-500 to-green-600 text-white px-8 py-6 rounded-2xl text-xl font-bold hover:scale-105 transition-transform shadow-lg flex items-center justify-center gap-2"
+                                    >
+                                        <CheckCircle className="w-8 h-8" />
+                                        IA
+                                    </button>
+                                    <button
+                                        onClick={() => handleAnswer(false)}
+                                        className="bg-gradient-to-br from-orange-500 to-orange-600 text-white px-8 py-6 rounded-2xl text-xl font-bold hover:scale-105 transition-transform shadow-lg flex items-center justify-center gap-2"
+                                    >
+                                        <XCircle className="w-8 h-8" />
+                                        Pas IA
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div>
+                                {question.isLimit ? (
+                                    <div className="mb-6">
+                                        <div className="flex items-center justify-center gap-3 mb-4">
+                                            <AlertCircle className="w-12 h-12 text-blue-600" />
+                                            <h2 className="text-3xl font-bold text-blue-600">
+                                                Bonne question ! 🤔
+                                            </h2>
+                                        </div>
+                                        <div className="bg-blue-50 border-2 border-blue-300 rounded-xl p-6 mb-4">
+                                            <p className="text-lg font-semibold text-blue-800 mb-2">
+                                                Ça dépend !
+                                            </p>
+                                            <p className="text-gray-700 mb-3">
+                                                {question.explanation}
+                                            </p>
+                                            {question.note && (
+                                                <p className="text-sm text-blue-600 italic font-semibold">
+                                                    💡 {question.note}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4 mb-4">
+                                            <p className="text-yellow-700 font-semibold flex items-center gap-2">
+                                                <Zap className="w-5 h-5" />
+                                                +1 point bonus pour la nuance !
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : userAnswer === question.isIA ? (
+                                    <div className="mb-6">
+                                        <div className="flex items-center justify-center gap-3 mb-4">
+                                            <CheckCircle className="w-12 h-12 text-green-600" />
+                                            <h2 className="text-3xl font-bold text-green-600">
+                                                Correct ! ✓
+                                            </h2>
+                                        </div>
+                                        <div className="bg-green-50 border-2 border-green-300 rounded-xl p-6 mb-4">
+                                            <p className="text-gray-700 mb-3">
+                                                {question.explanation}
+                                            </p>
+                                            {question.note && (
+                                                <p className="text-sm text-green-600 italic font-semibold">
+                                                    💡 {question.note}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="mb-6">
+                                        <div className="flex items-center justify-center gap-3 mb-4">
+                                            <XCircle className="w-12 h-12 text-red-600" />
+                                            <h2 className="text-3xl font-bold text-red-600">
+                                                Pas tout à fait...
+                                            </h2>
+                                        </div>
+                                        <div className="bg-red-50 border-2 border-red-300 rounded-xl p-6 mb-4">
+                                            <p className="text-gray-700 mb-3">
+                                                {question.explanation}
+                                            </p>
+                                            {question.note && (
+                                                <p className="text-sm text-red-600 italic font-semibold">
+                                                    💡 {question.note}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <button
+                                    onClick={nextQuestion}
+                                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4 rounded-full text-xl font-bold hover:scale-105 transition-transform shadow-lg"
+                                >
+                                    {currentQuestion < questions.length - 1 ? 'Question suivante →' : 'Voir mon profil 🏆'}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<IADetectiveGame />);
+    </script>
+</body>
+</html>
