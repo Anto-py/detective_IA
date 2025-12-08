@@ -3,532 +3,1360 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Jeu éducatif pour apprendre à distinguer l'IA des algorithmes classiques">
+    <meta name="theme-color" content="#127676">
     <title>IA ou Pas IA ? - Le Détective des Algorithmes</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
+        /* ========================================
+           VARIABLES & RESET
+           ======================================== */
+        :root {
+            /* Palette Retrofuturisme */
+            --retro-teal: #127676;
+            --retro-teal-light: #1a9a9a;
+            --retro-orange: #E4632E;
+            --retro-orange-light: #f07a4a;
+            --retro-jaune: #E3A535;
+            --retro-jaune-light: #f0b94d;
+            --retro-ink: #0D1617;
+            --retro-paper: #F2EFE6;
+            
+            /* Spacing scale */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            
+            /* Typography */
+            --font-display: 'Anton', Impact, 'Arial Black', sans-serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            
+            /* Transitions */
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+            --transition-slow: 350ms ease;
+            
+            /* Focus ring */
+            --focus-ring: 0 0 0 3px var(--retro-jaune), 0 0 0 5px var(--retro-ink);
+            
+            /* Border radius */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-pill: 50px;
+            
+            /* Min touch target (WCAG) */
+            --min-touch: 44px;
+        }
+        
+        /* Respect reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            padding: 0;
+        }
+        
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+        }
+        
+        body {
+            font-family: var(--font-body);
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--retro-ink);
+            background-color: var(--retro-ink);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+        }
+        
+        /* Skip link for accessibility */
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--retro-jaune);
+            color: var(--retro-ink);
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            z-index: 1000;
+            transition: top var(--transition-fast);
+        }
+        
+        .skip-link:focus {
+            top: var(--space-md);
+            outline: none;
+            box-shadow: var(--focus-ring);
+        }
+        
+        /* ========================================
+           TYPOGRAPHY
+           ======================================== */
+        .font-display {
+            font-family: var(--font-display);
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            line-height: 1.2;
+        }
+        
+        h1, h2, h3 {
+            font-family: var(--font-display);
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            line-height: 1.2;
+        }
+        
+        /* ========================================
+           LAYOUT
+           ======================================== */
+        .container {
+            width: 100%;
+            max-width: 680px;
+            margin: 0 auto;
+            padding: var(--space-md);
+        }
+        
+        .main-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-md);
+        }
+        
+        /* ========================================
+           CARD COMPONENT (Art Déco chamfered)
+           ======================================== */
+        .card {
+            background: var(--retro-paper);
+            border: 4px solid var(--retro-teal);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            position: relative;
+            
+            /* Chamfered corners via clip-path */
+            clip-path: polygon(
+                0 16px, 16px 0,
+                calc(100% - 16px) 0, 100% 16px,
+                100% calc(100% - 16px), calc(100% - 16px) 100%,
+                16px 100%, 0 calc(100% - 16px)
+            );
+        }
+        
+        @media (min-width: 640px) {
+            .card {
+                padding: var(--space-xl);
+            }
+        }
+        
+        /* Circuit frame decoration */
+        .circuit-frame {
+            position: relative;
+        }
+        
+        .circuit-frame::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            border: 3px solid var(--retro-teal);
+            pointer-events: none;
+            z-index: 1;
+            border-radius: var(--radius-sm);
+        }
+        
+        /* Corner decorations */
+        .corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            z-index: 2;
+        }
+        
+        .corner::before,
+        .corner::after {
+            content: '';
+            position: absolute;
+            background: var(--retro-orange);
+        }
+        
+        .corner--tl { top: 0; left: 0; }
+        .corner--tl::before { top: 0; left: 0; width: 10px; height: 10px; }
+        .corner--tl::after { top: 14px; left: 14px; width: 6px; height: 6px; }
+        
+        .corner--tr { top: 0; right: 0; }
+        .corner--tr::before { top: 0; right: 0; width: 10px; height: 10px; }
+        .corner--tr::after { top: 14px; right: 14px; width: 6px; height: 6px; }
+        
+        .corner--bl { bottom: 0; left: 0; }
+        .corner--bl::before { bottom: 0; left: 0; width: 10px; height: 10px; }
+        .corner--bl::after { bottom: 14px; left: 14px; width: 6px; height: 6px; }
+        
+        .corner--br { bottom: 0; right: 0; }
+        .corner--br::before { bottom: 0; right: 0; width: 10px; height: 10px; }
+        .corner--br::after { bottom: 14px; right: 14px; width: 6px; height: 6px; }
+        
+        /* ========================================
+           BUTTONS
+           ======================================== */
+        
+        /* Base button reset */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            font-family: var(--font-display);
+            font-size: 1rem;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            background: none;
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+            min-height: var(--min-touch);
+            min-width: var(--min-touch);
+        }
+        
+        .btn:focus-visible {
+            outline: none;
+            box-shadow: var(--focus-ring);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        /* Pill button (primary CTA) */
+        .btn-pill {
+            border: 3px solid var(--retro-teal);
+            border-radius: var(--radius-pill);
+            overflow: hidden;
+            padding: 0;
+        }
+        
+        .btn-pill:hover:not(:disabled) {
+            transform: scale(1.03);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .btn-pill:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+        
+        .btn-pill__text {
+            background: var(--retro-jaune);
+            color: var(--retro-ink);
+            padding: var(--space-md) var(--space-lg);
+            font-weight: 700;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-pill__icon {
+            background: var(--retro-orange);
+            color: var(--retro-paper);
+            width: 52px;
+            min-width: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            align-self: stretch;
+        }
+        
+        .btn-pill--large .btn-pill__text {
+            padding: var(--space-md) var(--space-xl);
+            font-size: 1.125rem;
+        }
+        
+        .btn-pill--large .btn-pill__icon {
+            width: 60px;
+            min-width: 60px;
+        }
+        
+        .btn-pill--secondary .btn-pill__text {
+            background: var(--retro-teal);
+            color: var(--retro-paper);
+        }
+        
+        .btn-pill--full {
+            width: 100%;
+        }
+        
+        /* Answer buttons */
+        .btn-answer {
+            border: 4px solid var(--retro-teal);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            font-size: 1.25rem;
+            font-weight: 700;
+            width: 100%;
+        }
+        
+        .btn-answer:hover:not(:disabled) {
+            transform: scale(1.03);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-answer:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+        
+        .btn-answer--ia {
+            background: var(--retro-teal);
+            color: var(--retro-paper);
+        }
+        
+        .btn-answer--ia:hover:not(:disabled) {
+            background: var(--retro-teal-light);
+        }
+        
+        .btn-answer--not-ia {
+            background: var(--retro-orange);
+            color: var(--retro-paper);
+        }
+        
+        .btn-answer--not-ia:hover:not(:disabled) {
+            background: var(--retro-orange-light);
+        }
+        
+        /* ========================================
+           PROGRESS BAR
+           ======================================== */
+        .progress {
+            height: 12px;
+            background: var(--retro-ink);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 2px solid var(--retro-teal);
+        }
+        
+        .progress__fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--retro-teal), var(--retro-orange), var(--retro-jaune));
+            transition: width var(--transition-normal);
+            border-radius: inherit;
+        }
+        
+        /* ========================================
+           FEEDBACK BOXES
+           ======================================== */
+        .feedback {
+            border: 4px solid;
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+        }
+        
+        .feedback--correct {
+            background: rgba(18, 118, 118, 0.1);
+            border-color: var(--retro-teal);
+        }
+        
+        .feedback--incorrect {
+            background: rgba(228, 99, 46, 0.1);
+            border-color: var(--retro-orange);
+        }
+        
+        .feedback--nuance {
+            background: rgba(227, 165, 53, 0.12);
+            border-color: var(--retro-jaune);
+        }
+        
+        /* ========================================
+           ALERT / WARNING BOX
+           ======================================== */
+        .alert {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-md);
+            border-radius: var(--radius-sm);
+            border: 3px solid;
+        }
+        
+        .alert--warning {
+            background: rgba(227, 165, 53, 0.12);
+            border-color: var(--retro-jaune);
+        }
+        
+        .alert--bonus {
+            background: rgba(227, 165, 53, 0.15);
+            border-color: var(--retro-jaune);
+        }
+        
+        .alert__icon {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+        }
+        
+        .alert__text {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--retro-ink);
+        }
+        
+        /* ========================================
+           STATS PANEL
+           ======================================== */
+        .stats-panel {
+            background: var(--retro-ink);
+            border: 3px solid var(--retro-teal);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-md);
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-sm);
+            }
+        }
+        
+        .stat-card {
+            background: rgba(18, 118, 118, 0.1);
+            border: 3px solid var(--retro-teal);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            text-align: center;
+        }
+        
+        .stat-card--teal { border-color: var(--retro-teal); }
+        .stat-card--jaune { border-color: var(--retro-jaune); }
+        .stat-card--orange { border-color: var(--retro-orange); }
+        
+        .stat-card__value {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            line-height: 1;
+        }
+        
+        .stat-card__value--teal { color: var(--retro-teal); }
+        .stat-card__value--jaune { color: var(--retro-jaune); }
+        .stat-card__value--orange { color: var(--retro-orange); }
+        
+        .stat-card__label {
+            font-size: 0.75rem;
+            color: var(--retro-paper);
+            margin-top: var(--space-xs);
+        }
+        
+        /* ========================================
+           TAGS
+           ======================================== */
+        .tag {
+            display: inline-block;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .tag--ia {
+            background: var(--retro-teal);
+            color: var(--retro-paper);
+        }
+        
+        .tag--not-ia {
+            background: var(--retro-orange);
+            color: var(--retro-paper);
+        }
+        
+        /* ========================================
+           ICON CIRCLE
+           ======================================== */
+        .icon-circle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto var(--space-md);
+        }
+        
+        .icon-circle--teal {
+            background: var(--retro-teal);
+        }
+        
+        .icon-circle--jaune {
+            background: var(--retro-jaune);
+            border: 4px solid var(--retro-teal);
+        }
+        
+        .icon-circle__svg {
+            width: 48px;
+            height: 48px;
+        }
+        
+        /* ========================================
+           INFO BOX
+           ======================================== */
+        .info-box {
+            background: var(--retro-ink);
+            border: 3px solid var(--retro-teal);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            color: var(--retro-paper);
+        }
+        
+        .info-box--highlight {
+            background: rgba(18, 118, 118, 0.1);
+            border-color: var(--retro-teal);
+            color: var(--retro-ink);
+        }
+        
+        /* ========================================
+           UTILITIES
+           ======================================== */
+        .text-center { text-align: center; }
+        .text-teal { color: var(--retro-teal); }
+        .text-orange { color: var(--retro-orange); }
+        .text-jaune { color: var(--retro-jaune); }
+        .text-ink { color: var(--retro-ink); }
+        .text-paper { color: var(--retro-paper); }
+        .text-muted { opacity: 0.8; }
+        
+        .mb-xs { margin-bottom: var(--space-xs); }
+        .mb-sm { margin-bottom: var(--space-sm); }
+        .mb-md { margin-bottom: var(--space-md); }
+        .mb-lg { margin-bottom: var(--space-lg); }
+        .mb-xl { margin-bottom: var(--space-xl); }
+        
+        .mt-md { margin-top: var(--space-md); }
+        .mt-lg { margin-top: var(--space-lg); }
+        
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .gap-sm { gap: var(--space-sm); }
+        .gap-md { gap: var(--space-md); }
+        .gap-lg { gap: var(--space-lg); }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-md);
+        }
+        
+        @media (max-width: 480px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .list-none {
+            list-style: none;
+        }
+        
+        /* Visually hidden (for screen readers) */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        /* ========================================
+           ANIMATIONS
+           ======================================== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn var(--transition-normal) ease-out;
         }
     </style>
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState } = React;
+        const { useState, useCallback, useEffect, useRef } = React;
 
-        // Icons as SVG components
-        const CheckCircle = ({ className }) => (
-            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        // ========================================
+        // ICONS (SVG Components)
+        // ========================================
+        const Icon = ({ children, className = "", size = 24, ariaHidden = true }) => (
+            <svg 
+                className={className}
+                width={size} 
+                height={size} 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor"
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden={ariaHidden}
+                focusable="false"
+            >
+                {children}
             </svg>
         );
 
-        const XCircle = ({ className }) => (
-            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        const CheckCircleIcon = (props) => (
+            <Icon {...props}>
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </Icon>
         );
 
-        const AlertCircle = ({ className }) => (
-            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        const XCircleIcon = (props) => (
+            <Icon {...props}>
+                <path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </Icon>
         );
 
-        const Trophy = ({ className }) => (
-            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-            </svg>
+        const AlertCircleIcon = (props) => (
+            <Icon {...props}>
+                <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </Icon>
         );
 
-        const Search = ({ className }) => (
-            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+        const TrophyIcon = (props) => (
+            <Icon {...props}>
+                <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+            </Icon>
         );
 
-        const Zap = ({ className }) => (
-            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
+        const SearchIcon = (props) => (
+            <Icon {...props}>
+                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </Icon>
         );
 
-        const IADetectiveGame = () => {
-            const questions = [
-                {
-                    id: 1,
-                    title: "Suggestions d'amis sur Facebook",
-                    description: "Facebook te propose des personnes à ajouter en ami",
-                    isIA: true,
-                    explanation: "Facebook analyse tes amis, tes likes, tes groupes pour PRÉDIRE qui tu pourrais connaître. C'est un système d'apprentissage machine.",
-                    isLimit: false
-                },
-                {
-                    id: 2,
-                    title: "Calculatrice",
-                    description: "Tu l'utilises pour faire 125 × 8",
-                    isIA: false,
-                    explanation: "Une calculatrice applique des formules mathématiques FIXES. Elle ne s'améliore pas, n'apprend rien de tes calculs précédents.",
-                    isLimit: false
-                },
-                {
-                    id: 3,
-                    title: "Recommandations Netflix",
-                    description: "Netflix te suggère des séries basées sur ton historique",
-                    isIA: true,
-                    explanation: "Netflix analyse ce que tu regardes, tes notes, les pauses, pour APPRENDRE tes goûts et prédire ce que tu aimeras.",
-                    isLimit: false
-                },
-                {
-                    id: 4,
-                    title: "GPS classique (calcul d'itinéraire)",
-                    description: "Ton GPS calcule le chemin le plus court entre deux points",
-                    isIA: false,
-                    explanation: "Un GPS classique utilise des algorithmes de calcul de chemin (plus court, plus rapide). Aucun apprentissage, juste des règles mathématiques fixes sur une carte.",
-                    note: "Attention : Waze avec prédiction de trafic, c'est différent ! On y reviendra...",
-                    isLimit: false
-                },
-                {
-                    id: 5,
-                    title: "Waze (prédiction de trafic)",
-                    description: "Waze prédit les embouteillages et ajuste ton trajet en direct",
-                    isIA: true,
-                    explanation: "Waze collecte les données de millions d'utilisateurs pour APPRENDRE les patterns de trafic et PRÉDIRE les conditions futures. Ça s'améliore avec le temps.",
-                    note: "GPS classique = calcul fixe | Waze = apprentissage continu",
-                    isLimit: false
-                },
-                {
-                    id: 6,
-                    title: "Filtre anti-spam Gmail",
-                    description: "Gmail détecte les emails indésirables et les met dans le dossier spam",
-                    isIA: true,
-                    explanation: "Quand tu signales un spam, Gmail APPREND. Il analyse des millions de messages pour reconnaître les patterns de spam et s'améliore constamment.",
-                    isLimit: false
-                },
-                {
-                    id: 7,
-                    title: "Reconnaissance faciale smartphone",
-                    description: "Ton téléphone te reconnaît même avec des lunettes ou une barbe",
-                    isIA: true,
-                    explanation: "La reconnaissance faciale utilise des réseaux neuronaux (deep learning). Le système APPREND ton visage et s'ADAPTE quand tu changes (lunettes, barbe, coiffure).",
-                    note: "C'est aussi pour ça qu'elle peut avoir des biais...",
-                    isLimit: false
-                },
-                {
-                    id: 8,
-                    title: "Chronomètre/minuteur",
-                    description: "Tu lances un chrono pour mesurer le temps",
-                    isIA: false,
-                    explanation: "Un chronomètre compte les secondes. Point. Aucun apprentissage, aucune prédiction.",
-                    isLimit: false
-                },
-                {
-                    id: 9,
-                    title: "Google Translate / DeepL",
-                    description: "Tu traduis un texte d'anglais vers français",
-                    isIA: true,
-                    explanation: "Google Translate moderne utilise des réseaux neuronaux entraînés sur des MILLIONS de textes traduits pour comprendre le sens, pas juste remplacer mot à mot.",
-                    note: "Fun fact : Avant 2016, c'était des règles. Maintenant, c'est 100% IA !",
-                    isLimit: false
-                },
-                {
-                    id: 10,
-                    title: "Correcteur orthographique",
-                    description: "Ton traitement de texte souligne les fautes d'orthographe",
-                    isIA: null,
-                    explanation: "ANCIEN correcteur (Word 2003) = dictionnaire + règles fixes = Pas IA. NOUVEAU (Grammarly, Word moderne) = apprend ton style, prédit tes erreurs = IA !",
-                    note: "Une même technologie peut évoluer d'algo classique vers IA",
-                    isLimit: true
-                },
-                {
-                    id: 11,
-                    title: "Assistant vocal (Siri/Alexa)",
-                    description: "Tu demandes à ton assistant : 'Quel temps fait-il demain ?'",
-                    isIA: true,
-                    explanation: "Assistants vocaux = DOUBLE IA : 1) Reconnaissance vocale (transformer ta voix en texte), 2) Compréhension langage naturel (comprendre ce que tu veux).",
-                    isLimit: false
-                },
-                {
-                    id: 12,
-                    title: "Publicités ciblées Instagram",
-                    description: "Instagram te montre des pubs en fonction de ton comportement",
-                    isIA: true,
-                    explanation: "Instagram analyse tout : tes likes, tes pauses, tes recherches, pour PRÉDIRE ce qui va t'intéresser et te vendre des trucs. C'est du profilage comportemental par IA.",
-                    note: "C'est aussi pour ça qu'on parle de 'bulle de filtre' et de manipulation...",
-                    isLimit: false
-                },
-                {
-                    id: 13,
-                    title: "Lecteur de code QR",
-                    description: "Tu scannes un QR code pour accéder à un site web",
-                    isIA: false,
-                    explanation: "Un QR code est juste un pattern à décoder selon un standard fixe. L'appareil lit les carrés noirs et blancs = 0 et 1. Aucune intelligence, juste de la lecture.",
-                    isLimit: false
-                },
-                {
-                    id: 14,
-                    title: "Appareil photo smartphone",
-                    description: "Tu prends une photo avec ton téléphone",
-                    isIA: null,
-                    explanation: "CAPTURE BASIQUE = juste enregistrer la lumière = Pas IA. MAIS mode portrait (flou arrière-plan), mode nuit, détection scène automatique = IA qui analyse l'image !",
-                    note: "Une fonction peut avoir plusieurs usages, certains avec IA, d'autres sans",
-                    isLimit: true
-                },
-                {
-                    id: 15,
-                    title: "Lampe torche smartphone",
-                    description: "Tu allumes la LED pour éclairer",
-                    isIA: false,
-                    explanation: "Une lampe torche allume juste une LED. On/Off. Pas d'algorithme, pas de décision, encore moins d'apprentissage !",
-                    isLimit: false
-                }
-            ];
+        const ZapIcon = (props) => (
+            <Icon {...props}>
+                <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </Icon>
+        );
 
-            const [currentQuestion, setCurrentQuestion] = useState(0);
-            const [showFeedback, setShowFeedback] = useState(false);
-            const [userAnswer, setUserAnswer] = useState(null);
-            const [score, setScore] = useState(0);
-            const [bonusPoints, setBonusPoints] = useState(0);
-            const [gameStarted, setGameStarted] = useState(false);
-            const [gameFinished, setGameFinished] = useState(false);
+        const ChevronRightIcon = (props) => (
+            <Icon {...props} strokeWidth={3}>
+                <path d="M9 5l7 7-7 7" />
+            </Icon>
+        );
 
-            const handleAnswer = (answer) => {
-                const question = questions[currentQuestion];
-                setUserAnswer(answer);
-                setShowFeedback(true);
+        const RefreshIcon = (props) => (
+            <Icon {...props}>
+                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </Icon>
+        );
 
-                if (question.isLimit) {
-                    setBonusPoints(bonusPoints + 1);
-                } else if (
-                    (answer === true && question.isIA === true) ||
-                    (answer === false && question.isIA === false)
-                ) {
-                    setScore(score + 1);
-                }
-            };
+        const BookIcon = (props) => (
+            <Icon {...props}>
+                <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </Icon>
+        );
 
-            const nextQuestion = () => {
-                if (currentQuestion < questions.length - 1) {
-                    setCurrentQuestion(currentQuestion + 1);
-                    setShowFeedback(false);
-                    setUserAnswer(null);
+        // ========================================
+        // DATA
+        // ========================================
+        const questions = [
+            {
+                id: 1,
+                title: "Suggestions d'amis sur Facebook",
+                description: "Facebook te propose des personnes à ajouter en ami",
+                isIA: true,
+                explanation: "Facebook analyse tes amis, tes likes, tes groupes pour PRÉDIRE qui tu pourrais connaître. C'est un système d'apprentissage machine.",
+                isLimit: false
+            },
+            {
+                id: 2,
+                title: "Calculatrice",
+                description: "Tu l'utilises pour faire 125 × 8",
+                isIA: false,
+                explanation: "Une calculatrice applique des formules mathématiques FIXES. Elle ne s'améliore pas, n'apprend rien de tes calculs précédents.",
+                isLimit: false
+            },
+            {
+                id: 3,
+                title: "Recommandations Netflix",
+                description: "Netflix te suggère des séries basées sur ton historique",
+                isIA: true,
+                explanation: "Netflix analyse ce que tu regardes, tes notes, les pauses, pour APPRENDRE tes goûts et prédire ce que tu aimeras.",
+                isLimit: false
+            },
+            {
+                id: 4,
+                title: "GPS classique (calcul d'itinéraire)",
+                description: "Ton GPS calcule le chemin le plus court entre deux points",
+                isIA: false,
+                explanation: "Un GPS classique utilise des algorithmes de calcul de chemin (plus court, plus rapide). Aucun apprentissage, juste des règles mathématiques fixes sur une carte.",
+                note: "Attention : Waze avec prédiction de trafic, c'est différent ! On y reviendra...",
+                isLimit: false
+            },
+            {
+                id: 5,
+                title: "Waze (prédiction de trafic)",
+                description: "Waze prédit les embouteillages et ajuste ton trajet en direct",
+                isIA: true,
+                explanation: "Waze collecte les données de millions d'utilisateurs pour APPRENDRE les patterns de trafic et PRÉDIRE les conditions futures. Ça s'améliore avec le temps.",
+                note: "GPS classique = calcul fixe | Waze = apprentissage continu",
+                isLimit: false
+            },
+            {
+                id: 6,
+                title: "Filtre anti-spam Gmail",
+                description: "Gmail détecte les emails indésirables et les met dans le dossier spam",
+                isIA: true,
+                explanation: "Quand tu signales un spam, Gmail APPREND. Il analyse des millions de messages pour reconnaître les patterns de spam et s'améliore constamment.",
+                isLimit: false
+            },
+            {
+                id: 7,
+                title: "Reconnaissance faciale smartphone",
+                description: "Ton téléphone te reconnaît même avec des lunettes ou une barbe",
+                isIA: true,
+                explanation: "La reconnaissance faciale utilise des réseaux neuronaux (deep learning). Le système APPREND ton visage et s'ADAPTE quand tu changes (lunettes, barbe, coiffure).",
+                note: "C'est aussi pour ça qu'elle peut avoir des biais...",
+                isLimit: false
+            },
+            {
+                id: 8,
+                title: "Chronomètre/minuteur",
+                description: "Tu lances un chrono pour mesurer le temps",
+                isIA: false,
+                explanation: "Un chronomètre compte les secondes. Point. Aucun apprentissage, aucune prédiction.",
+                isLimit: false
+            },
+            {
+                id: 9,
+                title: "Google Translate / DeepL",
+                description: "Tu traduis un texte d'anglais vers français",
+                isIA: true,
+                explanation: "Google Translate moderne utilise des réseaux neuronaux entraînés sur des MILLIONS de textes traduits pour comprendre le sens, pas juste remplacer mot à mot.",
+                note: "Fun fact : Avant 2016, c'était des règles. Maintenant, c'est 100% IA !",
+                isLimit: false
+            },
+            {
+                id: 10,
+                title: "Correcteur orthographique",
+                description: "Ton traitement de texte souligne les fautes d'orthographe",
+                isIA: null,
+                explanation: "ANCIEN correcteur (Word 2003) = dictionnaire + règles fixes = Pas IA. NOUVEAU (Grammarly, Word moderne) = apprend ton style, prédit tes erreurs = IA !",
+                note: "Une même technologie peut évoluer d'algo classique vers IA",
+                isLimit: true
+            },
+            {
+                id: 11,
+                title: "Assistant vocal (Siri/Alexa)",
+                description: "Tu demandes à ton assistant : 'Quel temps fait-il demain ?'",
+                isIA: true,
+                explanation: "Assistants vocaux = DOUBLE IA : 1) Reconnaissance vocale (transformer ta voix en texte), 2) Compréhension langage naturel (comprendre ce que tu veux).",
+                isLimit: false
+            },
+            {
+                id: 12,
+                title: "Publicités ciblées Instagram",
+                description: "Instagram te montre des pubs en fonction de ton comportement",
+                isIA: true,
+                explanation: "Instagram analyse tout : tes likes, tes pauses, tes recherches, pour PRÉDIRE ce qui va t'intéresser et te vendre des trucs. C'est du profilage comportemental par IA.",
+                note: "C'est aussi pour ça qu'on parle de 'bulle de filtre' et de manipulation...",
+                isLimit: false
+            },
+            {
+                id: 13,
+                title: "Lecteur de code QR",
+                description: "Tu scannes un QR code pour accéder à un site web",
+                isIA: false,
+                explanation: "Un QR code est juste un pattern à décoder selon un standard fixe. L'appareil lit les carrés noirs et blancs = 0 et 1. Aucune intelligence, juste de la lecture.",
+                isLimit: false
+            },
+            {
+                id: 14,
+                title: "Appareil photo smartphone",
+                description: "Tu prends une photo avec ton téléphone",
+                isIA: null,
+                explanation: "CAPTURE BASIQUE = juste enregistrer la lumière = Pas IA. MAIS mode portrait (flou arrière-plan), mode nuit, détection scène automatique = IA qui analyse l'image !",
+                note: "Une fonction peut avoir plusieurs usages, certains avec IA, d'autres sans",
+                isLimit: true
+            },
+            {
+                id: 15,
+                title: "Lampe torche smartphone",
+                description: "Tu allumes la LED pour éclairer",
+                isIA: false,
+                explanation: "Une lampe torche allume juste une LED. On/Off. Pas d'algorithme, pas de décision, encore moins d'apprentissage !",
+                isLimit: false
+            }
+        ];
+
+        // ========================================
+        // REUSABLE COMPONENTS
+        // ========================================
+        
+        // Card with circuit frame decoration
+        const Card = ({ children, className = "" }) => (
+            <div className={`card circuit-frame animate-fade-in ${className}`}>
+                <div className="corner corner--tl" aria-hidden="true"></div>
+                <div className="corner corner--tr" aria-hidden="true"></div>
+                <div className="corner corner--bl" aria-hidden="true"></div>
+                <div className="corner corner--br" aria-hidden="true"></div>
+                {children}
+            </div>
+        );
+
+        // Pill Button
+        const PillButton = ({ 
+            children, 
+            icon, 
+            onClick, 
+            href, 
+            variant = "primary", 
+            size = "normal",
+            fullWidth = false,
+            ariaLabel,
+            ...props 
+        }) => {
+            const classes = [
+                "btn btn-pill",
+                size === "large" && "btn-pill--large",
+                variant === "secondary" && "btn-pill--secondary",
+                fullWidth && "btn-pill--full"
+            ].filter(Boolean).join(" ");
+
+            const content = (
+                <>
+                    <span className="btn-pill__text">{children}</span>
+                    <span className="btn-pill__icon" aria-hidden="true">{icon}</span>
+                </>
+            );
+
+            if (href) {
+                return (
+                    <a href={href} className={classes} aria-label={ariaLabel} {...props}>
+                        {content}
+                    </a>
+                );
+            }
+
+            return (
+                <button 
+                    type="button" 
+                    className={classes} 
+                    onClick={onClick}
+                    aria-label={ariaLabel}
+                    {...props}
+                >
+                    {content}
+                </button>
+            );
+        };
+
+        // Progress Bar
+        const ProgressBar = ({ current, total, label }) => {
+            const percentage = Math.round((current / total) * 100);
+            return (
+                <div className="mb-lg" role="progressbar" aria-valuenow={current} aria-valuemin={0} aria-valuemax={total} aria-label={label}>
+                    <div className="flex justify-between items-center mb-sm">
+                        <span className="text-ink" style={{ fontSize: '0.875rem', fontWeight: 600 }}>
+                            Question {current}/{total}
+                        </span>
+                        <span className="text-teal" style={{ fontSize: '0.875rem', fontWeight: 600 }}>
+                            {percentage}% complété
+                        </span>
+                    </div>
+                    <div className="progress">
+                        <div className="progress__fill" style={{ width: `${percentage}%` }} />
+                    </div>
+                </div>
+            );
+        };
+
+        // Alert Box
+        const Alert = ({ type = "warning", icon: IconComponent, children }) => (
+            <div className={`alert alert--${type}`} role="alert">
+                {IconComponent && <IconComponent className="alert__icon" size={24} />}
+                <span className="alert__text">{children}</span>
+            </div>
+        );
+
+        // ========================================
+        // SCREENS
+        // ========================================
+
+        // Welcome Screen
+        const WelcomeScreen = ({ onStart }) => {
+            const startButtonRef = useRef(null);
+            
+            useEffect(() => {
+                startButtonRef.current?.focus();
+            }, []);
+
+            return (
+                <div className="main-wrapper">
+                    <Card>
+                        <main id="main-content" className="text-center">
+                            <div className="icon-circle icon-circle--teal">
+                                <SearchIcon className="icon-circle__svg" size={48} style={{ color: 'var(--retro-paper)' }} />
+                            </div>
+                            
+                            <h1 className="text-ink mb-sm" style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)' }}>
+                                IA OU PAS IA ?
+                            </h1>
+                            <h2 className="text-teal mb-lg" style={{ fontSize: 'clamp(1.125rem, 3vw, 1.5rem)' }}>
+                                LE DÉTECTIVE DES ALGORITHMES 🔍
+                            </h2>
+                            
+                            <div className="info-box mb-lg">
+                                <p style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: 'var(--space-md)' }}>
+                                    15 technologies du quotidien à décoder
+                                </p>
+                                <p className="text-muted mb-md">
+                                    Pour chaque exemple, décide :
+                                </p>
+                                <div className="flex gap-md justify-center mb-md" style={{ flexWrap: 'wrap' }}>
+                                    <span className="tag tag--ia">IA = système qui apprend</span>
+                                    <span className="tag tag--not-ia">PAS IA = algorithme classique</span>
+                                </div>
+                                <p className="text-jaune" style={{ fontSize: '0.875rem', fontStyle: 'italic' }}>
+                                    ⚠️ Attention aux pièges... Certains cas sont plus subtils qu'ils n'y paraissent !
+                                </p>
+                            </div>
+                            
+                            <PillButton 
+                                ref={startButtonRef}
+                                onClick={onStart} 
+                                icon={<ChevronRightIcon size={24} />}
+                                size="large"
+                                ariaLabel="Commencer le quiz"
+                            >
+                                PRÊT·E ? C'EST PARTI !
+                            </PillButton>
+                        </main>
+                    </Card>
+                </div>
+            );
+        };
+
+        // Game Screen
+        const GameScreen = ({ 
+            question, 
+            questionNumber, 
+            totalQuestions, 
+            score,
+            bonusPoints,
+            showFeedback, 
+            userAnswer, 
+            onAnswer, 
+            onNext,
+            isLastQuestion
+        }) => {
+            const nextButtonRef = useRef(null);
+            const iaButtonRef = useRef(null);
+
+            useEffect(() => {
+                if (showFeedback) {
+                    nextButtonRef.current?.focus();
                 } else {
-                    setGameFinished(true);
+                    iaButtonRef.current?.focus();
                 }
-            };
+            }, [showFeedback, questionNumber]);
+
+            const isCorrect = !question.isLimit && userAnswer === question.isIA;
+            const isIncorrect = !question.isLimit && userAnswer !== question.isIA;
+
+            return (
+                <div className="main-wrapper">
+                    <Card>
+                        <main id="main-content">
+                            <ProgressBar 
+                                current={questionNumber} 
+                                total={totalQuestions}
+                                label={`Progression du quiz: question ${questionNumber} sur ${totalQuestions}`}
+                            />
+
+                            {!showFeedback ? (
+                                <div className="animate-fade-in">
+                                    {question.isLimit && (
+                                        <Alert type="warning" icon={AlertCircleIcon}>
+                                            Attention, piège possible...
+                                        </Alert>
+                                    )}
+                                    
+                                    <div className={question.isLimit ? "mt-md" : ""}>
+                                        <h2 className="text-ink mb-sm" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>
+                                            {question.title}
+                                        </h2>
+                                        <p className="text-ink text-muted mb-lg" style={{ fontSize: '1.125rem' }}>
+                                            {question.description}
+                                        </p>
+                                    </div>
+
+                                    <p className="font-display text-teal text-center mb-md" style={{ fontSize: '1.25rem' }}>
+                                        C'EST DE L'IA ?
+                                    </p>
+
+                                    <div className="grid-2" role="group" aria-label="Choisis ta réponse">
+                                        <button 
+                                            ref={iaButtonRef}
+                                            type="button"
+                                            className="btn btn-answer btn-answer--ia"
+                                            onClick={() => onAnswer(true)}
+                                            aria-label="Répondre: Oui, c'est de l'IA"
+                                        >
+                                            <CheckCircleIcon size={32} />
+                                            <span>IA</span>
+                                        </button>
+                                        <button 
+                                            type="button"
+                                            className="btn btn-answer btn-answer--not-ia"
+                                            onClick={() => onAnswer(false)}
+                                            aria-label="Répondre: Non, ce n'est pas de l'IA"
+                                        >
+                                            <XCircleIcon size={32} />
+                                            <span>PAS IA</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="animate-fade-in">
+                                    {/* Feedback Header */}
+                                    <div className="flex items-center justify-center gap-md mb-md">
+                                        {question.isLimit ? (
+                                            <>
+                                                <AlertCircleIcon size={48} style={{ color: 'var(--retro-jaune)' }} />
+                                                <h2 className="text-jaune" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>
+                                                    BONNE QUESTION ! 🤔
+                                                </h2>
+                                            </>
+                                        ) : isCorrect ? (
+                                            <>
+                                                <CheckCircleIcon size={48} style={{ color: 'var(--retro-teal)' }} />
+                                                <h2 className="text-teal" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>
+                                                    CORRECT ! ✓
+                                                </h2>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <XCircleIcon size={48} style={{ color: 'var(--retro-orange)' }} />
+                                                <h2 className="text-orange" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>
+                                                    PAS TOUT À FAIT...
+                                                </h2>
+                                            </>
+                                        )}
+                                    </div>
+
+                                    {/* Feedback Box */}
+                                    <div className={`feedback mb-md ${
+                                        question.isLimit ? 'feedback--nuance' : 
+                                        isCorrect ? 'feedback--correct' : 'feedback--incorrect'
+                                    }`}>
+                                        {question.isLimit && (
+                                            <p className="text-ink mb-sm" style={{ fontSize: '1.125rem', fontWeight: 600 }}>
+                                                Ça dépend !
+                                            </p>
+                                        )}
+                                        <p className="text-ink mb-sm">
+                                            {question.explanation}
+                                        </p>
+                                        {question.note && (
+                                            <p style={{ 
+                                                fontSize: '0.875rem', 
+                                                fontStyle: 'italic', 
+                                                fontWeight: 600,
+                                                color: question.isLimit ? 'var(--retro-teal)' : 
+                                                       isCorrect ? 'var(--retro-teal)' : 'var(--retro-orange)'
+                                            }}>
+                                                💡 {question.note}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    {/* Bonus notification */}
+                                    {question.isLimit && (
+                                        <Alert type="bonus" icon={ZapIcon}>
+                                            +1 point bonus pour la nuance !
+                                        </Alert>
+                                    )}
+
+                                    <div className="mt-lg">
+                                        <PillButton 
+                                            ref={nextButtonRef}
+                                            onClick={onNext}
+                                            icon={<ChevronRightIcon size={24} />}
+                                            size="large"
+                                            fullWidth
+                                            ariaLabel={isLastQuestion ? "Voir mes résultats" : "Passer à la question suivante"}
+                                        >
+                                            {isLastQuestion ? 'VOIR MON PROFIL 🏆' : 'QUESTION SUIVANTE'}
+                                        </PillButton>
+                                    </div>
+                                </div>
+                            )}
+                        </main>
+                    </Card>
+                </div>
+            );
+        };
+
+        // Results Screen
+        const ResultsScreen = ({ score, bonusPoints, onRestart }) => {
+            const totalScore = score + bonusPoints;
+            const restartButtonRef = useRef(null);
+
+            useEffect(() => {
+                restartButtonRef.current?.focus();
+            }, []);
 
             const getProfile = () => {
-                const totalScore = score + bonusPoints;
                 if (totalScore >= 13) {
                     return {
-                        title: "Expert·e ML",
+                        title: "EXPERT·E ML",
                         emoji: "🏆",
                         description: "Tu maîtrises ! Tu distingues clairement apprentissage machine et algorithmes classiques. Tu as saisi les nuances importantes."
                     };
                 } else if (totalScore >= 9) {
                     return {
-                        title: "Détective Algo",
+                        title: "DÉTECTIVE ALGO",
                         emoji: "🔍",
                         description: "Bon travail ! Tu as les bases et tu comprends les principes. Quelques subtilités t'ont échappé mais tu es sur la bonne voie."
                     };
                 } else if (totalScore >= 5) {
                     return {
-                        title: "Novice IA",
+                        title: "NOVICE IA",
                         emoji: "🌱",
                         description: "C'est un début ! Tu découvres la différence entre IA et algorithmes. Continue à observer les technos autour de toi."
                     };
                 } else {
                     return {
-                        title: "Explorateur·ice",
+                        title: "EXPLORATEUR·ICE",
                         emoji: "🤔",
                         description: "Tu débutes ! Retiens : l'IA APPREND des données et s'améliore. Un algorithme classique suit des règles fixes."
                     };
                 }
             };
 
-            const resetGame = () => {
+            const profile = getProfile();
+
+            return (
+                <div className="main-wrapper">
+                    <Card>
+                        <main id="main-content">
+                            <div className="text-center mb-lg">
+                                <div className="icon-circle icon-circle--jaune">
+                                    <TrophyIcon className="icon-circle__svg" size={48} style={{ color: 'var(--retro-ink)' }} />
+                                </div>
+                                
+                                <h1 className="text-ink mb-md" style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)' }}>
+                                    BRAVO, PARCOURS TERMINÉ ! 🎉
+                                </h1>
+                                
+                                <div style={{ fontSize: '4rem', margin: 'var(--space-lg) 0' }} aria-hidden="true">
+                                    {profile.emoji}
+                                </div>
+                                
+                                <h2 className="text-teal mb-md" style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)' }}>
+                                    {profile.title}
+                                </h2>
+                                
+                                <p className="text-ink" style={{ fontSize: '1.125rem' }}>
+                                    {profile.description}
+                                </p>
+                            </div>
+
+                            {/* Stats */}
+                            <div className="stats-panel mb-lg" aria-label="Tes statistiques">
+                                <div className="stats-grid mb-md">
+                                    <div className="stat-card stat-card--teal">
+                                        <div className="stat-card__value stat-card__value--teal">{score}</div>
+                                        <div className="stat-card__label">Réponses correctes</div>
+                                    </div>
+                                    <div className="stat-card stat-card--jaune">
+                                        <div className="stat-card__value stat-card__value--jaune">{bonusPoints}</div>
+                                        <div className="stat-card__label">Points bonus</div>
+                                    </div>
+                                    <div className="stat-card stat-card--orange">
+                                        <div className="stat-card__value stat-card__value--orange">{totalScore}/17</div>
+                                        <div className="stat-card__label">Score total</div>
+                                    </div>
+                                </div>
+                                <p className="text-paper text-center text-muted" style={{ fontSize: '0.875rem', fontStyle: 'italic' }}>
+                                    L'important, c'est d'avoir développé ton esprit critique face aux technos !
+                                </p>
+                            </div>
+
+                            {/* Next Steps */}
+                            <div className="info-box info-box--highlight mb-lg">
+                                <h3 className="font-display text-ink mb-md" style={{ fontSize: '1.25rem' }}>
+                                    ET MAINTENANT ? 🤔
+                                </h3>
+                                <p className="text-ink mb-sm">
+                                    Maintenant que tu sais reconnaître l'IA, on va explorer :
+                                </p>
+                                <ul className="text-ink list-none" style={{ paddingLeft: 0 }}>
+                                    <li className="mb-sm">💾 Comment l'IA apprend-elle ? (Spoiler : avec TES données)</li>
+                                    <li className="mb-sm">⚖️ Quels sont les biais cachés ?</li>
+                                    <li className="mb-sm">🌍 Quel impact écologique ?</li>
+                                    <li className="mb-sm">🧠 Comment l'utiliser de façon critique ?</li>
+                                </ul>
+                                <p className="text-teal mt-md" style={{ fontWeight: 600 }}>
+                                    Ces questions, on va les explorer ensemble dans la suite de la formation !
+                                </p>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex flex-col gap-md">
+                                <PillButton 
+                                    ref={restartButtonRef}
+                                    onClick={onRestart}
+                                    icon={<RefreshIcon size={24} />}
+                                    size="large"
+                                    fullWidth
+                                    ariaLabel="Rejouer le quiz"
+                                >
+                                    REJOUER
+                                </PillButton>
+                                
+                                <PillButton 
+                                    href="https://borzeux.my.canva.site/intro-ia/page-9"
+                                    icon={<BookIcon size={24} />}
+                                    size="large"
+                                    fullWidth
+                                    variant="secondary"
+                                    ariaLabel="Retourner à la formation"
+                                >
+                                    RETOUR À LA FORMATION
+                                </PillButton>
+                            </div>
+                        </main>
+                    </Card>
+                </div>
+            );
+        };
+
+        // ========================================
+        // MAIN APP
+        // ========================================
+        const IADetectiveGame = () => {
+            const [gameState, setGameState] = useState('welcome'); // 'welcome' | 'playing' | 'finished'
+            const [currentQuestion, setCurrentQuestion] = useState(0);
+            const [showFeedback, setShowFeedback] = useState(false);
+            const [userAnswer, setUserAnswer] = useState(null);
+            const [score, setScore] = useState(0);
+            const [bonusPoints, setBonusPoints] = useState(0);
+
+            const handleStart = useCallback(() => {
+                setGameState('playing');
+            }, []);
+
+            const handleAnswer = useCallback((answer) => {
+                const question = questions[currentQuestion];
+                setUserAnswer(answer);
+                setShowFeedback(true);
+
+                if (question.isLimit) {
+                    setBonusPoints(prev => prev + 1);
+                } else if (
+                    (answer === true && question.isIA === true) ||
+                    (answer === false && question.isIA === false)
+                ) {
+                    setScore(prev => prev + 1);
+                }
+            }, [currentQuestion]);
+
+            const handleNext = useCallback(() => {
+                if (currentQuestion < questions.length - 1) {
+                    setCurrentQuestion(prev => prev + 1);
+                    setShowFeedback(false);
+                    setUserAnswer(null);
+                } else {
+                    setGameState('finished');
+                }
+            }, [currentQuestion]);
+
+            const handleRestart = useCallback(() => {
+                setGameState('welcome');
                 setCurrentQuestion(0);
                 setShowFeedback(false);
                 setUserAnswer(null);
                 setScore(0);
                 setBonusPoints(0);
-                setGameStarted(false);
-                setGameFinished(false);
-            };
+            }, []);
 
-            if (!gameStarted) {
-                return (
-                    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-                        <div className="absolute inset-0 bg-cover bg-center" style={{backgroundImage: 'url(IA_detective.jpg)', filter: 'brightness(0.4)'}}></div>
-                        <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 max-w-2xl w-full text-center relative z-10">
-                            <Search className="w-20 h-20 mx-auto mb-4 text-purple-600" />
-                            <h1 className="text-4xl font-bold text-gray-800 mb-4">
-                                IA ou Pas IA ?
-                            </h1>
-                            <h2 className="text-2xl text-purple-600 mb-6">
-                                Le Détective des Algorithmes 🔍
-                            </h2>
-                            <div className="bg-purple-50 rounded-xl p-6 mb-6">
-                                <p className="text-lg text-gray-700 mb-4">
-                                    <strong>15 technologies du quotidien à décoder</strong>
-                                </p>
-                                <p className="text-gray-600 mb-2">
-                                    Pour chaque exemple, décide :
-                                </p>
-                                <div className="flex gap-4 justify-center mb-4 flex-wrap">
-                                    <div className="bg-green-100 px-4 py-2 rounded-lg">
-                                        <strong className="text-green-700">IA</strong> = système qui apprend
-                                    </div>
-                                    <div className="bg-orange-100 px-4 py-2 rounded-lg">
-                                        <strong className="text-orange-700">Pas IA</strong> = algorithme classique
-                                    </div>
-                                </div>
-                                <p className="text-sm text-gray-500 italic">
-                                    ⚠️ Attention aux pièges... Certains cas sont plus subtils qu'ils n'y paraissent !
-                                </p>
-                            </div>
-                            <button
-                                onClick={() => setGameStarted(true)}
-                                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-transform shadow-lg"
-                            >
-                                Prêt·e ? C'est parti ! 🚀
-                            </button>
-                        </div>
-                    </div>
-                );
+            // Keyboard navigation for Escape to restart
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    if (e.key === 'Escape' && gameState === 'finished') {
+                        handleRestart();
+                    }
+                };
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, [gameState, handleRestart]);
+
+            if (gameState === 'welcome') {
+                return <WelcomeScreen onStart={handleStart} />;
             }
 
-            if (gameFinished) {
-                const profile = getProfile();
-                const totalScore = score + bonusPoints;
-
+            if (gameState === 'finished') {
                 return (
-                    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-                        <div className="absolute inset-0 bg-cover bg-center" style={{backgroundImage: 'url(IA_detective.jpg)', filter: 'brightness(0.4)'}}></div>
-                        <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 max-w-2xl w-full relative z-10">
-                            <div className="text-center mb-8">
-                                <Trophy className="w-20 h-20 mx-auto mb-4 text-yellow-500" />
-                                <h1 className="text-4xl font-bold text-gray-800 mb-2">
-                                    Bravo, parcours terminé ! 🎉
-                                </h1>
-                                <div className="text-6xl my-6">{profile.emoji}</div>
-                                <h2 className="text-3xl font-bold text-purple-600 mb-4">
-                                    {profile.title}
-                                </h2>
-                                <p className="text-lg text-gray-700 mb-6">
-                                    {profile.description}
-                                </p>
-                            </div>
-
-                            <div className="bg-purple-50 rounded-xl p-6 mb-6">
-                                <div className="grid grid-cols-3 gap-4 text-center mb-4">
-                                    <div>
-                                        <div className="text-3xl font-bold text-green-600">{score}</div>
-                                        <div className="text-sm text-gray-600">Réponses correctes</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-3xl font-bold text-blue-600">{bonusPoints}</div>
-                                        <div className="text-sm text-gray-600">Points bonus (nuances)</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-3xl font-bold text-purple-600">{totalScore}/17</div>
-                                        <div className="text-sm text-gray-600">Score total</div>
-                                    </div>
-                                </div>
-                                <p className="text-center text-gray-600 italic text-sm">
-                                    L'important, c'est d'avoir développé ton esprit critique face aux technos !
-                                </p>
-                            </div>
-
-                            <div className="bg-blue-50 rounded-xl p-6 mb-6">
-                                <h3 className="text-xl font-bold text-gray-800 mb-4">
-                                    Et maintenant ? 🤔
-                                </h3>
-                                <p className="text-gray-700 mb-3">
-                                    Maintenant que tu sais reconnaître l'IA, on va explorer :
-                                </p>
-                                <ul className="space-y-2 text-gray-700">
-                                    <li>💾 Comment l'IA apprend-elle ? (Spoiler : avec TES données)</li>
-                                    <li>⚖️ Quels sont les biais cachés ?</li>
-                                    <li>🌍 Quel impact écologique ?</li>
-                                    <li>🧠 Comment l'utiliser de façon critique ?</li>
-                                </ul>
-                                <p className="text-purple-600 font-semibold mt-4">
-                                    Ces questions, on va les explorer ensemble dans la suite de la formation !
-                                </p>
-                            </div>
-
-                            <button
-                                onClick={resetGame}
-                                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform shadow-lg mb-4"
-                            >
-                                Rejouer 🔄
-                            </button>
-
-                            <a
-                                href="https://borzeux.my.canva.site/intro-ia/page-9"
-                                className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform shadow-lg block text-center"
-                            >
-                                Retour à la formation 📚
-                            </a>
-                        </div>
-                    </div>
+                    <ResultsScreen 
+                        score={score} 
+                        bonusPoints={bonusPoints} 
+                        onRestart={handleRestart} 
+                    />
                 );
             }
-
-            const question = questions[currentQuestion];
-            const progress = ((currentQuestion + 1) / questions.length) * 100;
 
             return (
-                <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-cover bg-center" style={{backgroundImage: 'url(IA_detective.jpg)', filter: 'brightness(0.4)'}}></div>
-                    <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 max-w-2xl w-full relative z-10">
-                        <div className="mb-6">
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm font-semibold text-gray-600">
-                                    Question {currentQuestion + 1}/15
-                                </span>
-                                <span className="text-sm font-semibold text-purple-600">
-                                    Score : {score + bonusPoints}/{currentQuestion + bonusPoints}
-                                </span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-3">
-                                <div
-                                    className="bg-gradient-to-r from-purple-600 to-pink-600 h-3 rounded-full transition-all duration-300"
-                                    style={{ width: `${progress}%` }}
-                                />
-                            </div>
-                        </div>
-
-                        {!showFeedback ? (
-                            <div>
-                                <div className="mb-6">
-                                    {question.isLimit && (
-                                        <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-3 mb-4 flex items-center gap-2">
-                                            <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0" />
-                                            <span className="text-sm text-yellow-700 font-semibold">
-                                                Attention, piège possible...
-                                            </span>
-                                        </div>
-                                    )}
-                                    <h2 className="text-3xl font-bold text-gray-800 mb-4">
-                                        {question.title}
-                                    </h2>
-                                    <p className="text-lg text-gray-600 mb-6">
-                                        {question.description}
-                                    </p>
-                                </div>
-
-                                <div className="mb-6">
-                                    <p className="text-xl font-semibold text-center text-gray-700 mb-4">
-                                        C'est de l'IA ?
-                                    </p>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <button
-                                        onClick={() => handleAnswer(true)}
-                                        className="bg-gradient-to-br from-green-500 to-green-600 text-white px-8 py-6 rounded-2xl text-xl font-bold hover:scale-105 transition-transform shadow-lg flex items-center justify-center gap-2"
-                                    >
-                                        <CheckCircle className="w-8 h-8" />
-                                        IA
-                                    </button>
-                                    <button
-                                        onClick={() => handleAnswer(false)}
-                                        className="bg-gradient-to-br from-orange-500 to-orange-600 text-white px-8 py-6 rounded-2xl text-xl font-bold hover:scale-105 transition-transform shadow-lg flex items-center justify-center gap-2"
-                                    >
-                                        <XCircle className="w-8 h-8" />
-                                        Pas IA
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <div>
-                                {question.isLimit ? (
-                                    <div className="mb-6">
-                                        <div className="flex items-center justify-center gap-3 mb-4">
-                                            <AlertCircle className="w-12 h-12 text-blue-600" />
-                                            <h2 className="text-3xl font-bold text-blue-600">
-                                                Bonne question ! 🤔
-                                            </h2>
-                                        </div>
-                                        <div className="bg-blue-50 border-2 border-blue-300 rounded-xl p-6 mb-4">
-                                            <p className="text-lg font-semibold text-blue-800 mb-2">
-                                                Ça dépend !
-                                            </p>
-                                            <p className="text-gray-700 mb-3">
-                                                {question.explanation}
-                                            </p>
-                                            {question.note && (
-                                                <p className="text-sm text-blue-600 italic font-semibold">
-                                                    💡 {question.note}
-                                                </p>
-                                            )}
-                                        </div>
-                                        <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4 mb-4">
-                                            <p className="text-yellow-700 font-semibold flex items-center gap-2">
-                                                <Zap className="w-5 h-5" />
-                                                +1 point bonus pour la nuance !
-                                            </p>
-                                        </div>
-                                    </div>
-                                ) : userAnswer === question.isIA ? (
-                                    <div className="mb-6">
-                                        <div className="flex items-center justify-center gap-3 mb-4">
-                                            <CheckCircle className="w-12 h-12 text-green-600" />
-                                            <h2 className="text-3xl font-bold text-green-600">
-                                                Correct ! ✓
-                                            </h2>
-                                        </div>
-                                        <div className="bg-green-50 border-2 border-green-300 rounded-xl p-6 mb-4">
-                                            <p className="text-gray-700 mb-3">
-                                                {question.explanation}
-                                            </p>
-                                            {question.note && (
-                                                <p className="text-sm text-green-600 italic font-semibold">
-                                                    💡 {question.note}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="mb-6">
-                                        <div className="flex items-center justify-center gap-3 mb-4">
-                                            <XCircle className="w-12 h-12 text-red-600" />
-                                            <h2 className="text-3xl font-bold text-red-600">
-                                                Pas tout à fait...
-                                            </h2>
-                                        </div>
-                                        <div className="bg-red-50 border-2 border-red-300 rounded-xl p-6 mb-4">
-                                            <p className="text-gray-700 mb-3">
-                                                {question.explanation}
-                                            </p>
-                                            {question.note && (
-                                                <p className="text-sm text-red-600 italic font-semibold">
-                                                    💡 {question.note}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-
-                                <button
-                                    onClick={nextQuestion}
-                                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4 rounded-full text-xl font-bold hover:scale-105 transition-transform shadow-lg"
-                                >
-                                    {currentQuestion < questions.length - 1 ? 'Question suivante →' : 'Voir mon profil 🏆'}
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                <GameScreen
+                    question={questions[currentQuestion]}
+                    questionNumber={currentQuestion + 1}
+                    totalQuestions={questions.length}
+                    score={score}
+                    bonusPoints={bonusPoints}
+                    showFeedback={showFeedback}
+                    userAnswer={userAnswer}
+                    onAnswer={handleAnswer}
+                    onNext={handleNext}
+                    isLastQuestion={currentQuestion === questions.length - 1}
+                />
             );
         };
 
