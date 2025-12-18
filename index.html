@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* ========================================
-           VARIABLES & RESET
+           VARIABLES & RESET - RETROFuturisme v2.0
            ======================================== */
         :root {
             /* Palette Retrofuturisme */
@@ -24,6 +24,12 @@
             --retro-jaune-light: #f0b94d;
             --retro-ink: #0D1617;
             --retro-paper: #F2EFE6;
+            
+            /* États sémantiques */
+            --retro-state-success: var(--retro-teal);
+            --retro-state-error: var(--retro-orange);
+            --retro-state-warning: var(--retro-jaune);
+            --retro-state-bonus: var(--retro-jaune);
             
             /* Spacing scale */
             --space-xs: 4px;
@@ -45,11 +51,13 @@
             /* Focus ring */
             --focus-ring: 0 0 0 3px var(--retro-jaune), 0 0 0 5px var(--retro-ink);
             
-            /* Border radius */
+            /* Border radius Art Nouveau asymétrique */
+            --radius-card: 24px 8px 24px 8px;
+            --radius-card-alt: 8px 24px 8px 24px;
+            --radius-pill: 50px;
             --radius-sm: 8px;
             --radius-md: 12px;
             --radius-lg: 16px;
-            --radius-pill: 50px;
             
             /* Min touch target (WCAG) */
             --min-touch: 44px;
@@ -116,16 +124,49 @@
            ======================================== */
         .font-display {
             font-family: var(--font-display);
-            letter-spacing: 0.03em;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
             line-height: 1.2;
         }
         
         h1, h2, h3 {
             font-family: var(--font-display);
-            letter-spacing: 0.03em;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
             line-height: 1.2;
+        }
+        
+        /* ========================================
+           PAGE FRAME - Art Nouveau Style
+           ======================================== */
+        .page-frame {
+            background: var(--retro-paper);
+            border: 4px solid var(--retro-orange);
+            position: relative;
+            min-height: calc(100vh - 24px);
+            margin: 12px;
+            padding: var(--space-xl);
+        }
+        
+        /* Motifs floraux Art Nouveau aux coins (SVG inline) */
+        .corner-flourish {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            color: var(--retro-teal);
+            opacity: 0.7;
+        }
+        
+        .corner-flourish.top-left { top: 8px; left: 8px; }
+        .corner-flourish.top-right { top: 8px; right: 8px; transform: scaleX(-1); }
+        .corner-flourish.bottom-left { bottom: 8px; left: 8px; transform: scaleY(-1); }
+        .corner-flourish.bottom-right { bottom: 8px; right: 8px; transform: scale(-1); }
+        
+        @media (min-width: 640px) {
+            .corner-flourish {
+                width: 70px;
+                height: 70px;
+            }
         }
         
         /* ========================================
@@ -135,11 +176,10 @@
             width: 100%;
             max-width: 680px;
             margin: 0 auto;
-            padding: var(--space-md);
         }
         
         .main-wrapper {
-            min-height: 100vh;
+            min-height: calc(100vh - 88px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -147,22 +187,16 @@
         }
         
         /* ========================================
-           CARD COMPONENT (Art Déco chamfered)
+           CARD COMPONENT (Art Nouveau asymétrique)
            ======================================== */
         .card {
             background: var(--retro-paper);
             border: 4px solid var(--retro-teal);
-            border-radius: var(--radius-lg);
+            border-radius: var(--radius-card);
             padding: var(--space-lg);
             position: relative;
-            
-            /* Chamfered corners via clip-path */
-            clip-path: polygon(
-                0 16px, 16px 0,
-                calc(100% - 16px) 0, 100% 16px,
-                100% calc(100% - 16px), calc(100% - 16px) 100%,
-                16px 100%, 0 calc(100% - 16px)
-            );
+            /* Double bordure Art Nouveau */
+            box-shadow: inset 0 0 0 3px var(--retro-orange);
         }
         
         @media (min-width: 640px) {
@@ -171,54 +205,35 @@
             }
         }
         
-        /* Circuit frame decoration */
-        .circuit-frame {
-            position: relative;
+        /* ========================================
+           SÉPARATEUR ART NOUVEAU
+           ======================================== */
+        .retro-separator {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin: var(--space-lg) 0;
+            color: var(--retro-teal);
         }
         
-        .circuit-frame::before {
+        .retro-separator::before,
+        .retro-separator::after {
             content: '';
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            right: 8px;
-            bottom: 8px;
-            border: 3px solid var(--retro-teal);
-            pointer-events: none;
-            z-index: 1;
-            border-radius: var(--radius-sm);
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                var(--retro-teal) 20%,
+                var(--retro-teal) 80%,
+                transparent
+            );
         }
         
-        /* Corner decorations */
-        .corner {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            z-index: 2;
+        .retro-separator .flourish {
+            font-size: 1.5rem;
+            opacity: 0.8;
         }
-        
-        .corner::before,
-        .corner::after {
-            content: '';
-            position: absolute;
-            background: var(--retro-orange);
-        }
-        
-        .corner--tl { top: 0; left: 0; }
-        .corner--tl::before { top: 0; left: 0; width: 10px; height: 10px; }
-        .corner--tl::after { top: 14px; left: 14px; width: 6px; height: 6px; }
-        
-        .corner--tr { top: 0; right: 0; }
-        .corner--tr::before { top: 0; right: 0; width: 10px; height: 10px; }
-        .corner--tr::after { top: 14px; right: 14px; width: 6px; height: 6px; }
-        
-        .corner--bl { bottom: 0; left: 0; }
-        .corner--bl::before { bottom: 0; left: 0; width: 10px; height: 10px; }
-        .corner--bl::after { bottom: 14px; left: 14px; width: 6px; height: 6px; }
-        
-        .corner--br { bottom: 0; right: 0; }
-        .corner--br::before { bottom: 0; right: 0; width: 10px; height: 10px; }
-        .corner--br::after { bottom: 14px; right: 14px; width: 6px; height: 6px; }
         
         /* ========================================
            BUTTONS
@@ -232,7 +247,7 @@
             gap: var(--space-sm);
             font-family: var(--font-display);
             font-size: 1rem;
-            letter-spacing: 0.03em;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
             text-decoration: none;
             cursor: pointer;
@@ -285,8 +300,8 @@
         .btn-pill__icon {
             background: var(--retro-orange);
             color: var(--retro-paper);
-            width: 52px;
-            min-width: 52px;
+            width: 56px;
+            min-width: 56px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -299,8 +314,8 @@
         }
         
         .btn-pill--large .btn-pill__icon {
-            width: 60px;
-            min-width: 60px;
+            width: 64px;
+            min-width: 64px;
         }
         
         .btn-pill--secondary .btn-pill__text {
@@ -312,14 +327,15 @@
             width: 100%;
         }
         
-        /* Answer buttons */
+        /* Answer buttons - Style Art Nouveau */
         .btn-answer {
             border: 4px solid var(--retro-teal);
-            border-radius: var(--radius-lg);
+            border-radius: var(--radius-card);
             padding: var(--space-lg);
             font-size: 1.25rem;
             font-weight: 700;
             width: 100%;
+            position: relative;
         }
         
         .btn-answer:hover:not(:disabled) {
@@ -338,57 +354,68 @@
         
         .btn-answer--ia:hover:not(:disabled) {
             background: var(--retro-teal-light);
+            box-shadow: inset 0 0 0 2px var(--retro-jaune);
         }
         
         .btn-answer--not-ia {
             background: var(--retro-orange);
             color: var(--retro-paper);
+            border-radius: var(--radius-card-alt);
         }
         
         .btn-answer--not-ia:hover:not(:disabled) {
             background: var(--retro-orange-light);
+            box-shadow: inset 0 0 0 2px var(--retro-jaune);
         }
         
         /* ========================================
            PROGRESS BAR
            ======================================== */
         .progress {
-            height: 12px;
+            height: 14px;
             background: var(--retro-ink);
-            border-radius: 6px;
+            border-radius: 7px;
             overflow: hidden;
             border: 2px solid var(--retro-teal);
         }
         
         .progress__fill {
             height: 100%;
+            /* Gradient narratif : teal → orange → jaune (progression) */
             background: linear-gradient(90deg, var(--retro-teal), var(--retro-orange), var(--retro-jaune));
             transition: width var(--transition-normal);
             border-radius: inherit;
         }
         
         /* ========================================
-           FEEDBACK BOXES
+           FEEDBACK BOXES - Cohérence sémantique
            ======================================== */
         .feedback {
-            border: 4px solid;
-            border-radius: var(--radius-lg);
+            border-radius: var(--radius-card-alt);
             padding: var(--space-lg);
+            /* Bordure gauche épaisse style retrofuturiste */
+            border-left: 5px solid;
         }
         
+        /* Succès = TEAL (jamais orange ou jaune) */
         .feedback--correct {
-            background: rgba(18, 118, 118, 0.1);
-            border-color: var(--retro-teal);
+            background: rgba(18, 118, 118, 0.12);
+            border-color: var(--retro-state-success);
+            border-left-color: var(--retro-state-success);
         }
         
+        /* Erreur = ORANGE (jamais teal) */
         .feedback--incorrect {
-            background: rgba(228, 99, 46, 0.1);
-            border-color: var(--retro-orange);
+            background: rgba(228, 99, 46, 0.12);
+            border-color: var(--retro-state-error);
+            border-left-color: var(--retro-state-error);
         }
         
+        /* Nuance/Warning = JAUNE */
         .feedback--nuance {
-            background: rgba(227, 165, 53, 0.12);
-            border-color: var(--retro-jaune);
+            background: rgba(227, 165, 53, 0.15);
+            border-color: var(--retro-state-warning);
+            border-left-color: var(--retro-state-warning);
         }
         
         /* ========================================
@@ -404,12 +431,12 @@
         }
         
         .alert--warning {
-            background: rgba(227, 165, 53, 0.12);
+            background: rgba(227, 165, 53, 0.15);
             border-color: var(--retro-jaune);
         }
         
         .alert--bonus {
-            background: rgba(227, 165, 53, 0.15);
+            background: rgba(227, 165, 53, 0.18);
             border-color: var(--retro-jaune);
         }
         
@@ -431,8 +458,9 @@
         .stats-panel {
             background: var(--retro-ink);
             border: 3px solid var(--retro-teal);
-            border-radius: var(--radius-lg);
+            border-radius: var(--radius-card);
             padding: var(--space-lg);
+            box-shadow: inset 0 0 0 2px var(--retro-orange);
         }
         
         .stats-grid {
@@ -464,6 +492,7 @@
             font-family: var(--font-display);
             font-size: 1.75rem;
             line-height: 1;
+            letter-spacing: 0.05em;
         }
         
         .stat-card__value--teal { color: var(--retro-teal); }
@@ -474,6 +503,8 @@
             font-size: 0.75rem;
             color: var(--retro-paper);
             margin-top: var(--space-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         
         /* ========================================
@@ -485,6 +516,7 @@
             border-radius: var(--radius-sm);
             font-size: 0.875rem;
             font-weight: 600;
+            letter-spacing: 0.03em;
         }
         
         .tag--ia {
@@ -512,6 +544,7 @@
         
         .icon-circle--teal {
             background: var(--retro-teal);
+            border: 3px solid var(--retro-orange);
         }
         
         .icon-circle--jaune {
@@ -530,15 +563,17 @@
         .info-box {
             background: var(--retro-ink);
             border: 3px solid var(--retro-teal);
-            border-radius: var(--radius-lg);
+            border-radius: var(--radius-card-alt);
             padding: var(--space-lg);
             color: var(--retro-paper);
+            box-shadow: inset 0 0 0 2px var(--retro-orange);
         }
         
         .info-box--highlight {
-            background: rgba(18, 118, 118, 0.1);
+            background: rgba(18, 118, 118, 0.08);
             border-color: var(--retro-teal);
             color: var(--retro-ink);
+            box-shadow: inset 0 0 0 2px var(--retro-jaune);
         }
         
         /* ========================================
@@ -609,6 +644,15 @@
         .animate-fade-in {
             animation: fadeIn var(--transition-normal) ease-out;
         }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(227, 165, 53, 0.4); }
+            50% { box-shadow: 0 0 20px 4px rgba(227, 165, 53, 0.6); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
     </style>
 </head>
 <body>
@@ -617,6 +661,29 @@
 
     <script type="text/babel">
         const { useState, useCallback, useEffect, useRef } = React;
+
+        // ========================================
+        // MOTIF FLORAL ART NOUVEAU (SVG)
+        // ========================================
+        const FloralCorner = ({ className }) => (
+            <svg 
+                className={`corner-flourish ${className}`}
+                viewBox="0 0 100 100" 
+                fill="currentColor"
+                aria-hidden="true"
+            >
+                {/* Motif floral stylisé Art Nouveau */}
+                <path d="M5,95 Q5,5 95,5 Q70,5 55,20 C40,35 45,55 30,65 Q15,75 5,95 Z" opacity="0.3"/>
+                <path d="M10,90 Q10,25 75,10" fill="none" stroke="currentColor" strokeWidth="3"/>
+                <circle cx="75" cy="10" r="6"/>
+                <circle cx="55" cy="22" r="4"/>
+                <circle cx="38" cy="38" r="3"/>
+                <path d="M20,80 Q25,60 40,55 Q55,50 50,35" fill="none" stroke="currentColor" strokeWidth="2"/>
+                <circle cx="20" cy="80" r="5"/>
+                {/* Feuille stylisée */}
+                <path d="M60,30 Q70,20 80,25 Q75,35 60,30 Z" />
+            </svg>
+        );
 
         // ========================================
         // ICONS (SVG Components)
@@ -830,14 +897,28 @@
         // REUSABLE COMPONENTS
         // ========================================
         
-        // Card with circuit frame decoration
-        const Card = ({ children, className = "" }) => (
-            <div className={`card circuit-frame animate-fade-in ${className}`}>
-                <div className="corner corner--tl" aria-hidden="true"></div>
-                <div className="corner corner--tr" aria-hidden="true"></div>
-                <div className="corner corner--bl" aria-hidden="true"></div>
-                <div className="corner corner--br" aria-hidden="true"></div>
+        // Page Frame with Art Nouveau corners
+        const PageFrame = ({ children }) => (
+            <div className="page-frame">
+                <FloralCorner className="top-left" />
+                <FloralCorner className="top-right" />
+                <FloralCorner className="bottom-left" />
+                <FloralCorner className="bottom-right" />
                 {children}
+            </div>
+        );
+
+        // Card with Art Nouveau style
+        const Card = ({ children, className = "" }) => (
+            <div className={`card animate-fade-in ${className}`}>
+                {children}
+            </div>
+        );
+
+        // Séparateur Art Nouveau
+        const Separator = ({ symbol = "❧" }) => (
+            <div className="retro-separator" aria-hidden="true">
+                <span className="flourish">{symbol}</span>
             </div>
         );
 
@@ -894,11 +975,11 @@
             return (
                 <div className="mb-lg" role="progressbar" aria-valuenow={current} aria-valuemin={0} aria-valuemax={total} aria-label={label}>
                     <div className="flex justify-between items-center mb-sm">
-                        <span className="text-ink" style={{ fontSize: '0.875rem', fontWeight: 600 }}>
+                        <span className="text-ink" style={{ fontSize: '0.875rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
                             Question {current}/{total}
                         </span>
                         <span className="text-teal" style={{ fontSize: '0.875rem', fontWeight: 600 }}>
-                            {percentage}% complété
+                            {percentage}%
                         </span>
                     </div>
                     <div className="progress">
@@ -929,48 +1010,54 @@
             }, []);
 
             return (
-                <div className="main-wrapper">
-                    <Card>
-                        <main id="main-content" className="text-center">
-                            <div className="icon-circle icon-circle--teal">
-                                <SearchIcon className="icon-circle__svg" size={48} style={{ color: 'var(--retro-paper)' }} />
-                            </div>
-                            
-                            <h1 className="text-ink mb-sm" style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)' }}>
-                                IA OU PAS IA ?
-                            </h1>
-                            <h2 className="text-teal mb-lg" style={{ fontSize: 'clamp(1.125rem, 3vw, 1.5rem)' }}>
-                                LE DÉTECTIVE DES ALGORITHMES 🔍
-                            </h2>
-                            
-                            <div className="info-box mb-lg">
-                                <p style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: 'var(--space-md)' }}>
-                                    15 technologies du quotidien à décoder
-                                </p>
-                                <p className="text-muted mb-md">
-                                    Pour chaque exemple, décide :
-                                </p>
-                                <div className="flex gap-md justify-center mb-md" style={{ flexWrap: 'wrap' }}>
-                                    <span className="tag tag--ia">IA = système qui apprend</span>
-                                    <span className="tag tag--not-ia">PAS IA = algorithme classique</span>
-                                </div>
-                                <p className="text-jaune" style={{ fontSize: '0.875rem', fontStyle: 'italic' }}>
-                                    ⚠️ Attention aux pièges... Certains cas sont plus subtils qu'ils n'y paraissent !
-                                </p>
-                            </div>
-                            
-                            <PillButton 
-                                ref={startButtonRef}
-                                onClick={onStart} 
-                                icon={<ChevronRightIcon size={24} />}
-                                size="large"
-                                ariaLabel="Commencer le quiz"
-                            >
-                                PRÊT·E ? C'EST PARTI !
-                            </PillButton>
-                        </main>
-                    </Card>
-                </div>
+                <PageFrame>
+                    <div className="main-wrapper">
+                        <div className="container">
+                            <Card>
+                                <main id="main-content" className="text-center">
+                                    <div className="icon-circle icon-circle--teal">
+                                        <SearchIcon className="icon-circle__svg" size={48} style={{ color: 'var(--retro-paper)' }} />
+                                    </div>
+                                    
+                                    <h1 className="text-ink mb-sm" style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)' }}>
+                                        IA OU PAS IA ?
+                                    </h1>
+                                    <h2 className="text-teal mb-md" style={{ fontSize: 'clamp(1rem, 3vw, 1.25rem)' }}>
+                                        LE DÉTECTIVE DES ALGORITHMES
+                                    </h2>
+                                    
+                                    <Separator symbol="🔍" />
+                                    
+                                    <div className="info-box mb-lg">
+                                        <p style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: 'var(--space-md)', letterSpacing: '0.03em' }}>
+                                            15 TECHNOLOGIES DU QUOTIDIEN À DÉCODER
+                                        </p>
+                                        <p className="text-muted mb-md">
+                                            Pour chaque exemple, décide :
+                                        </p>
+                                        <div className="flex gap-md justify-center mb-md" style={{ flexWrap: 'wrap' }}>
+                                            <span className="tag tag--ia">IA = système qui apprend</span>
+                                            <span className="tag tag--not-ia">PAS IA = algorithme classique</span>
+                                        </div>
+                                        <p className="text-jaune" style={{ fontSize: '0.875rem', fontStyle: 'italic' }}>
+                                            ⚠️ Attention aux pièges... Certains cas sont plus subtils qu'ils n'y paraissent !
+                                        </p>
+                                    </div>
+                                    
+                                    <PillButton 
+                                        ref={startButtonRef}
+                                        onClick={onStart} 
+                                        icon={<ChevronRightIcon size={24} />}
+                                        size="large"
+                                        ariaLabel="Commencer le quiz"
+                                    >
+                                        PRÊT·E ? C'EST PARTI !
+                                    </PillButton>
+                                </main>
+                            </Card>
+                        </div>
+                    </div>
+                </PageFrame>
             );
         };
 
@@ -1002,136 +1089,142 @@
             const isIncorrect = !question.isLimit && userAnswer !== question.isIA;
 
             return (
-                <div className="main-wrapper">
-                    <Card>
-                        <main id="main-content">
-                            <ProgressBar 
-                                current={questionNumber} 
-                                total={totalQuestions}
-                                label={`Progression du quiz: question ${questionNumber} sur ${totalQuestions}`}
-                            />
+                <PageFrame>
+                    <div className="main-wrapper">
+                        <div className="container">
+                            <Card>
+                                <main id="main-content">
+                                    <ProgressBar 
+                                        current={questionNumber} 
+                                        total={totalQuestions}
+                                        label={`Progression du quiz: question ${questionNumber} sur ${totalQuestions}`}
+                                    />
 
-                            {!showFeedback ? (
-                                <div className="animate-fade-in">
-                                    {question.isLimit && (
-                                        <Alert type="warning" icon={AlertCircleIcon}>
-                                            Attention, piège possible...
-                                        </Alert>
-                                    )}
-                                    
-                                    <div className={question.isLimit ? "mt-md" : ""}>
-                                        <h2 className="text-ink mb-sm" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>
-                                            {question.title}
-                                        </h2>
-                                        <p className="text-ink text-muted mb-lg" style={{ fontSize: '1.125rem' }}>
-                                            {question.description}
-                                        </p>
-                                    </div>
-
-                                    <p className="font-display text-teal text-center mb-md" style={{ fontSize: '1.25rem' }}>
-                                        C'EST DE L'IA ?
-                                    </p>
-
-                                    <div className="grid-2" role="group" aria-label="Choisis ta réponse">
-                                        <button 
-                                            ref={iaButtonRef}
-                                            type="button"
-                                            className="btn btn-answer btn-answer--ia"
-                                            onClick={() => onAnswer(true)}
-                                            aria-label="Répondre: Oui, c'est de l'IA"
-                                        >
-                                            <CheckCircleIcon size={32} />
-                                            <span>IA</span>
-                                        </button>
-                                        <button 
-                                            type="button"
-                                            className="btn btn-answer btn-answer--not-ia"
-                                            onClick={() => onAnswer(false)}
-                                            aria-label="Répondre: Non, ce n'est pas de l'IA"
-                                        >
-                                            <XCircleIcon size={32} />
-                                            <span>PAS IA</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="animate-fade-in">
-                                    {/* Feedback Header */}
-                                    <div className="flex items-center justify-center gap-md mb-md">
-                                        {question.isLimit ? (
-                                            <>
-                                                <AlertCircleIcon size={48} style={{ color: 'var(--retro-jaune)' }} />
-                                                <h2 className="text-jaune" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>
-                                                    BONNE QUESTION ! 🤔
+                                    {!showFeedback ? (
+                                        <div className="animate-fade-in">
+                                            {question.isLimit && (
+                                                <Alert type="warning" icon={AlertCircleIcon}>
+                                                    Attention, piège possible...
+                                                </Alert>
+                                            )}
+                                            
+                                            <div className={question.isLimit ? "mt-md" : ""}>
+                                                <h2 className="text-ink mb-sm" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>
+                                                    {question.title}
                                                 </h2>
-                                            </>
-                                        ) : isCorrect ? (
-                                            <>
-                                                <CheckCircleIcon size={48} style={{ color: 'var(--retro-teal)' }} />
-                                                <h2 className="text-teal" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>
-                                                    CORRECT ! ✓
-                                                </h2>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <XCircleIcon size={48} style={{ color: 'var(--retro-orange)' }} />
-                                                <h2 className="text-orange" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>
-                                                    PAS TOUT À FAIT...
-                                                </h2>
-                                            </>
-                                        )}
-                                    </div>
+                                                <p className="text-ink text-muted mb-lg" style={{ fontSize: '1.125rem' }}>
+                                                    {question.description}
+                                                </p>
+                                            </div>
 
-                                    {/* Feedback Box */}
-                                    <div className={`feedback mb-md ${
-                                        question.isLimit ? 'feedback--nuance' : 
-                                        isCorrect ? 'feedback--correct' : 'feedback--incorrect'
-                                    }`}>
-                                        {question.isLimit && (
-                                            <p className="text-ink mb-sm" style={{ fontSize: '1.125rem', fontWeight: 600 }}>
-                                                Ça dépend !
+                                            <Separator symbol="❧" />
+
+                                            <p className="font-display text-teal text-center mb-md" style={{ fontSize: '1.25rem' }}>
+                                                C'EST DE L'IA ?
                                             </p>
-                                        )}
-                                        <p className="text-ink mb-sm">
-                                            {question.explanation}
-                                        </p>
-                                        {question.note && (
-                                            <p style={{ 
-                                                fontSize: '0.875rem', 
-                                                fontStyle: 'italic', 
-                                                fontWeight: 600,
-                                                color: question.isLimit ? 'var(--retro-teal)' : 
-                                                       isCorrect ? 'var(--retro-teal)' : 'var(--retro-orange)'
-                                            }}>
-                                                💡 {question.note}
-                                            </p>
-                                        )}
-                                    </div>
 
-                                    {/* Bonus notification */}
-                                    {question.isLimit && (
-                                        <Alert type="bonus" icon={ZapIcon}>
-                                            +1 point bonus pour la nuance !
-                                        </Alert>
+                                            <div className="grid-2" role="group" aria-label="Choisis ta réponse">
+                                                <button 
+                                                    ref={iaButtonRef}
+                                                    type="button"
+                                                    className="btn btn-answer btn-answer--ia"
+                                                    onClick={() => onAnswer(true)}
+                                                    aria-label="Répondre: Oui, c'est de l'IA"
+                                                >
+                                                    <CheckCircleIcon size={32} />
+                                                    <span>IA</span>
+                                                </button>
+                                                <button 
+                                                    type="button"
+                                                    className="btn btn-answer btn-answer--not-ia"
+                                                    onClick={() => onAnswer(false)}
+                                                    aria-label="Répondre: Non, ce n'est pas de l'IA"
+                                                >
+                                                    <XCircleIcon size={32} />
+                                                    <span>PAS IA</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="animate-fade-in">
+                                            {/* Feedback Header */}
+                                            <div className="flex items-center justify-center gap-md mb-md">
+                                                {question.isLimit ? (
+                                                    <>
+                                                        <AlertCircleIcon size={48} style={{ color: 'var(--retro-jaune)' }} />
+                                                        <h2 className="text-jaune" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>
+                                                            BONNE QUESTION !
+                                                        </h2>
+                                                    </>
+                                                ) : isCorrect ? (
+                                                    <>
+                                                        <CheckCircleIcon size={48} style={{ color: 'var(--retro-teal)' }} />
+                                                        <h2 className="text-teal" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>
+                                                            CORRECT !
+                                                        </h2>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <XCircleIcon size={48} style={{ color: 'var(--retro-orange)' }} />
+                                                        <h2 className="text-orange" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>
+                                                            PAS TOUT À FAIT...
+                                                        </h2>
+                                                    </>
+                                                )}
+                                            </div>
+
+                                            {/* Feedback Box */}
+                                            <div className={`feedback mb-md ${
+                                                question.isLimit ? 'feedback--nuance' : 
+                                                isCorrect ? 'feedback--correct' : 'feedback--incorrect'
+                                            }`}>
+                                                {question.isLimit && (
+                                                    <p className="text-ink mb-sm" style={{ fontSize: '1.125rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                                        Ça dépend !
+                                                    </p>
+                                                )}
+                                                <p className="text-ink mb-sm">
+                                                    {question.explanation}
+                                                </p>
+                                                {question.note && (
+                                                    <p style={{ 
+                                                        fontSize: '0.875rem', 
+                                                        fontStyle: 'italic', 
+                                                        fontWeight: 600,
+                                                        color: question.isLimit ? 'var(--retro-teal)' : 
+                                                               isCorrect ? 'var(--retro-teal)' : 'var(--retro-orange)'
+                                                    }}>
+                                                        💡 {question.note}
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            {/* Bonus notification */}
+                                            {question.isLimit && (
+                                                <Alert type="bonus" icon={ZapIcon}>
+                                                    +1 point bonus pour la nuance !
+                                                </Alert>
+                                            )}
+
+                                            <div className="mt-lg">
+                                                <PillButton 
+                                                    ref={nextButtonRef}
+                                                    onClick={onNext}
+                                                    icon={<ChevronRightIcon size={24} />}
+                                                    size="large"
+                                                    fullWidth
+                                                    ariaLabel={isLastQuestion ? "Voir mes résultats" : "Passer à la question suivante"}
+                                                >
+                                                    {isLastQuestion ? 'VOIR MON PROFIL' : 'QUESTION SUIVANTE'}
+                                                </PillButton>
+                                            </div>
+                                        </div>
                                     )}
-
-                                    <div className="mt-lg">
-                                        <PillButton 
-                                            ref={nextButtonRef}
-                                            onClick={onNext}
-                                            icon={<ChevronRightIcon size={24} />}
-                                            size="large"
-                                            fullWidth
-                                            ariaLabel={isLastQuestion ? "Voir mes résultats" : "Passer à la question suivante"}
-                                        >
-                                            {isLastQuestion ? 'VOIR MON PROFIL 🏆' : 'QUESTION SUIVANTE'}
-                                        </PillButton>
-                                    </div>
-                                </div>
-                            )}
-                        </main>
-                    </Card>
-                </div>
+                                </main>
+                            </Card>
+                        </div>
+                    </div>
+                </PageFrame>
             );
         };
 
@@ -1175,98 +1268,104 @@
             const profile = getProfile();
 
             return (
-                <div className="main-wrapper">
-                    <Card>
-                        <main id="main-content">
-                            <div className="text-center mb-lg">
-                                <div className="icon-circle icon-circle--jaune">
-                                    <TrophyIcon className="icon-circle__svg" size={48} style={{ color: 'var(--retro-ink)' }} />
-                                </div>
-                                
-                                <h1 className="text-ink mb-md" style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)' }}>
-                                    BRAVO, PARCOURS TERMINÉ ! 🎉
-                                </h1>
-                                
-                                <div style={{ fontSize: '4rem', margin: 'var(--space-lg) 0' }} aria-hidden="true">
-                                    {profile.emoji}
-                                </div>
-                                
-                                <h2 className="text-teal mb-md" style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)' }}>
-                                    {profile.title}
-                                </h2>
-                                
-                                <p className="text-ink" style={{ fontSize: '1.125rem' }}>
-                                    {profile.description}
-                                </p>
-                            </div>
-
-                            {/* Stats */}
-                            <div className="stats-panel mb-lg" aria-label="Tes statistiques">
-                                <div className="stats-grid mb-md">
-                                    <div className="stat-card stat-card--teal">
-                                        <div className="stat-card__value stat-card__value--teal">{score}</div>
-                                        <div className="stat-card__label">Réponses correctes</div>
+                <PageFrame>
+                    <div className="main-wrapper">
+                        <div className="container">
+                            <Card>
+                                <main id="main-content">
+                                    <div className="text-center mb-lg">
+                                        <div className="icon-circle icon-circle--jaune pulse-glow">
+                                            <TrophyIcon className="icon-circle__svg" size={48} style={{ color: 'var(--retro-ink)' }} />
+                                        </div>
+                                        
+                                        <h1 className="text-ink mb-md" style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)' }}>
+                                            PARCOURS TERMINÉ !
+                                        </h1>
+                                        
+                                        <div style={{ fontSize: '4rem', margin: 'var(--space-lg) 0' }} aria-hidden="true">
+                                            {profile.emoji}
+                                        </div>
+                                        
+                                        <h2 className="text-teal mb-md" style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)' }}>
+                                            {profile.title}
+                                        </h2>
+                                        
+                                        <p className="text-ink" style={{ fontSize: '1.125rem' }}>
+                                            {profile.description}
+                                        </p>
                                     </div>
-                                    <div className="stat-card stat-card--jaune">
-                                        <div className="stat-card__value stat-card__value--jaune">{bonusPoints}</div>
-                                        <div className="stat-card__label">Points bonus</div>
-                                    </div>
-                                    <div className="stat-card stat-card--orange">
-                                        <div className="stat-card__value stat-card__value--orange">{totalScore}/17</div>
-                                        <div className="stat-card__label">Score total</div>
-                                    </div>
-                                </div>
-                                <p className="text-paper text-center text-muted" style={{ fontSize: '0.875rem', fontStyle: 'italic' }}>
-                                    L'important, c'est d'avoir développé ton esprit critique face aux technos !
-                                </p>
-                            </div>
 
-                            {/* Next Steps */}
-                            <div className="info-box info-box--highlight mb-lg">
-                                <h3 className="font-display text-ink mb-md" style={{ fontSize: '1.25rem' }}>
-                                    ET MAINTENANT ? 🤔
-                                </h3>
-                                <p className="text-ink mb-sm">
-                                    Maintenant que tu sais reconnaître l'IA, on va explorer :
-                                </p>
-                                <ul className="text-ink list-none" style={{ paddingLeft: 0 }}>
-                                    <li className="mb-sm">💾 Comment l'IA apprend-elle ? (Spoiler : avec TES données)</li>
-                                    <li className="mb-sm">⚖️ Quels sont les biais cachés ?</li>
-                                    <li className="mb-sm">🌍 Quel impact écologique ?</li>
-                                    <li className="mb-sm">🧠 Comment l'utiliser de façon critique ?</li>
-                                </ul>
-                                <p className="text-teal mt-md" style={{ fontWeight: 600 }}>
-                                    Ces questions, on va les explorer ensemble dans la suite de la formation !
-                                </p>
-                            </div>
+                                    <Separator symbol="✾" />
 
-                            {/* Actions */}
-                            <div className="flex flex-col gap-md">
-                                <PillButton 
-                                    ref={restartButtonRef}
-                                    onClick={onRestart}
-                                    icon={<RefreshIcon size={24} />}
-                                    size="large"
-                                    fullWidth
-                                    ariaLabel="Rejouer le quiz"
-                                >
-                                    REJOUER
-                                </PillButton>
-                                
-                                <PillButton 
-                                    href="https://borzeux.my.canva.site/intro-ia/page-9"
-                                    icon={<BookIcon size={24} />}
-                                    size="large"
-                                    fullWidth
-                                    variant="secondary"
-                                    ariaLabel="Retourner à la formation"
-                                >
-                                    RETOUR À LA FORMATION
-                                </PillButton>
-                            </div>
-                        </main>
-                    </Card>
-                </div>
+                                    {/* Stats */}
+                                    <div className="stats-panel mb-lg" aria-label="Tes statistiques">
+                                        <div className="stats-grid mb-md">
+                                            <div className="stat-card stat-card--teal">
+                                                <div className="stat-card__value stat-card__value--teal">{score}</div>
+                                                <div className="stat-card__label">Correctes</div>
+                                            </div>
+                                            <div className="stat-card stat-card--jaune">
+                                                <div className="stat-card__value stat-card__value--jaune">{bonusPoints}</div>
+                                                <div className="stat-card__label">Bonus</div>
+                                            </div>
+                                            <div className="stat-card stat-card--orange">
+                                                <div className="stat-card__value stat-card__value--orange">{totalScore}/17</div>
+                                                <div className="stat-card__label">Total</div>
+                                            </div>
+                                        </div>
+                                        <p className="text-paper text-center text-muted" style={{ fontSize: '0.875rem', fontStyle: 'italic' }}>
+                                            L'important : développer ton esprit critique face aux technos !
+                                        </p>
+                                    </div>
+
+                                    {/* Next Steps */}
+                                    <div className="info-box info-box--highlight mb-lg">
+                                        <h3 className="font-display text-ink mb-md" style={{ fontSize: '1.25rem' }}>
+                                            ET MAINTENANT ?
+                                        </h3>
+                                        <p className="text-ink mb-sm">
+                                            Maintenant que tu sais reconnaître l'IA, on va explorer :
+                                        </p>
+                                        <ul className="text-ink list-none" style={{ paddingLeft: 0 }}>
+                                            <li className="mb-sm">💾 Comment l'IA apprend-elle ? (Spoiler : avec TES données)</li>
+                                            <li className="mb-sm">⚖️ Quels sont les biais cachés ?</li>
+                                            <li className="mb-sm">🌍 Quel impact écologique ?</li>
+                                            <li className="mb-sm">🧠 Comment l'utiliser de façon critique ?</li>
+                                        </ul>
+                                        <p className="text-teal mt-md" style={{ fontWeight: 600 }}>
+                                            Ces questions, on va les explorer ensemble dans la suite de la formation !
+                                        </p>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="flex flex-col gap-md">
+                                        <PillButton 
+                                            ref={restartButtonRef}
+                                            onClick={onRestart}
+                                            icon={<RefreshIcon size={24} />}
+                                            size="large"
+                                            fullWidth
+                                            ariaLabel="Rejouer le quiz"
+                                        >
+                                            REJOUER
+                                        </PillButton>
+                                        
+                                        <PillButton 
+                                            href="https://borzeux.my.canva.site/intro-ia/page-9"
+                                            icon={<BookIcon size={24} />}
+                                            size="large"
+                                            fullWidth
+                                            variant="secondary"
+                                            ariaLabel="Retourner à la formation"
+                                        >
+                                            RETOUR À LA FORMATION
+                                        </PillButton>
+                                    </div>
+                                </main>
+                            </Card>
+                        </div>
+                    </div>
+                </PageFrame>
             );
         };
 
@@ -1274,7 +1373,7 @@
         // MAIN APP
         // ========================================
         const IADetectiveGame = () => {
-            const [gameState, setGameState] = useState('welcome'); // 'welcome' | 'playing' | 'finished'
+            const [gameState, setGameState] = useState('welcome');
             const [currentQuestion, setCurrentQuestion] = useState(0);
             const [showFeedback, setShowFeedback] = useState(false);
             const [userAnswer, setUserAnswer] = useState(null);
@@ -1319,7 +1418,6 @@
                 setBonusPoints(0);
             }, []);
 
-            // Keyboard navigation for Escape to restart
             useEffect(() => {
                 const handleKeyDown = (e) => {
                     if (e.key === 'Escape' && gameState === 'finished') {
