@@ -93,6 +93,10 @@
             line-height: 1.6;
             color: var(--retro-ink);
             background-color: var(--retro-ink);
+            background-image: url('IA_detective.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             min-height: 100vh;
@@ -137,35 +141,32 @@
         }
         
         /* ========================================
-           PAGE FRAME - Art Nouveau Style
+           PAGE WRAPPER - Simple wrapper without frame
            ======================================== */
-        .page-frame {
-            background: var(--retro-paper);
-            border: 4px solid var(--retro-orange);
-            position: relative;
-            min-height: calc(100vh - 24px);
-            margin: 12px;
-            padding: var(--space-xl);
+        .page-wrapper {
+            min-height: 100vh;
+            padding: 12px;
         }
-        
-        /* Motifs floraux Art Nouveau aux coins (SVG inline) */
+
+        /* Motifs floraux Art Nouveau aux coins (inside card) */
         .corner-flourish {
             position: absolute;
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             color: var(--retro-teal);
             opacity: 0.7;
+            z-index: 1;
         }
-        
+
         .corner-flourish.top-left { top: 8px; left: 8px; }
         .corner-flourish.top-right { top: 8px; right: 8px; transform: scaleX(-1); }
         .corner-flourish.bottom-left { bottom: 8px; left: 8px; transform: scaleY(-1); }
         .corner-flourish.bottom-right { bottom: 8px; right: 8px; transform: scale(-1); }
-        
+
         @media (min-width: 640px) {
             .corner-flourish {
-                width: 70px;
-                height: 70px;
+                width: 55px;
+                height: 55px;
             }
         }
         
@@ -897,20 +898,20 @@
         // REUSABLE COMPONENTS
         // ========================================
         
-        // Page Frame with Art Nouveau corners
-        const PageFrame = ({ children }) => (
-            <div className="page-frame">
-                <FloralCorner className="top-left" />
-                <FloralCorner className="top-right" />
-                <FloralCorner className="bottom-left" />
-                <FloralCorner className="bottom-right" />
+        // Page Wrapper - simple wrapper without frame
+        const PageWrapper = ({ children }) => (
+            <div className="page-wrapper">
                 {children}
             </div>
         );
 
-        // Card with Art Nouveau style
+        // Card with Art Nouveau style and floral corners
         const Card = ({ children, className = "" }) => (
             <div className={`card animate-fade-in ${className}`}>
+                <FloralCorner className="top-left" />
+                <FloralCorner className="top-right" />
+                <FloralCorner className="bottom-left" />
+                <FloralCorner className="bottom-right" />
                 {children}
             </div>
         );
@@ -1010,7 +1011,7 @@
             }, []);
 
             return (
-                <PageFrame>
+                <PageWrapper>
                     <div className="main-wrapper">
                         <div className="container">
                             <Card>
@@ -1057,7 +1058,7 @@
                             </Card>
                         </div>
                     </div>
-                </PageFrame>
+                </PageWrapper>
             );
         };
 
@@ -1089,7 +1090,7 @@
             const isIncorrect = !question.isLimit && userAnswer !== question.isIA;
 
             return (
-                <PageFrame>
+                <PageWrapper>
                     <div className="main-wrapper">
                         <div className="container">
                             <Card>
@@ -1224,7 +1225,7 @@
                             </Card>
                         </div>
                     </div>
-                </PageFrame>
+                </PageWrapper>
             );
         };
 
@@ -1268,7 +1269,7 @@
             const profile = getProfile();
 
             return (
-                <PageFrame>
+                <PageWrapper>
                     <div className="main-wrapper">
                         <div className="container">
                             <Card>
@@ -1365,7 +1366,7 @@
                             </Card>
                         </div>
                     </div>
-                </PageFrame>
+                </PageWrapper>
             );
         };
 
